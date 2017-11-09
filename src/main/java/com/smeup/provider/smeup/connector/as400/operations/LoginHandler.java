@@ -1,0 +1,203 @@
+package com.smeup.provider.smeup.connector.as400.operations;
+
+import java.io.IOException;
+import java.text.MessageFormat;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import javax.inject.Inject;
+
+import com.google.common.base.Splitter;
+import com.google.common.collect.Streams;
+import com.ibm.as400.access.AS400SecurityException;
+import com.ibm.as400.access.AS400Text;
+import com.ibm.as400.access.ErrorCompletingRequestException;
+import com.ibm.as400.access.ObjectDoesNotExistException;
+import com.ibm.as400.access.ProgramCall;
+import com.smeup.provider.model.LoginResponse;
+import com.smeup.provider.smeup.connector.as400.DataQueueReader;
+import com.smeup.provider.smeup.connector.as400.DataQueueWriter;
+import com.smeup.provider.smeup.connector.as400.FUNParser;
+
+public class LoginHandler {
+
+    private static final String[] CREATION_PARAMS = {
+            String.format("%1$-" + 10 + "s", "JA"),
+            String.format("%1$-" + 10 + "s", "DATSES"),
+            String.format("%1$-" + 10 + "s", "CON"),
+            String.format("%1$-" + 10 + "s", "MAS"),
+            String.format("%1$-" + 15 + "s", ""),
+            String.format("%1$-" + 15 + "s", ""),
+            String.format("%1$-" + 512 + "s", ""),
+            String.format("%1$-" + 128 + "s", ""),
+            String.format("%1$-" + 1024 + "s", "") };
+
+    private static final String[] ENVIRONMENTS = {
+            String.format("%1$-" + 10 + "s", "JA"),
+            String.format("%1$-" + 10 + "s", "LISAMB"),
+            String.format("%1$-" + 10 + "s", "LET"),
+            String.format("%1$-" + 10 + "s", "IU"),
+            String.format("%1$-" + 15 + "s", "FIOGIA"),
+            String.format("%1$-" + 15 + "s", ""),
+            String.format("%1$-" + 512 + "s", ""),
+            String.format("%1$-" + 128 + "s", ""),
+            String.format("%1$-" + 1000 + "s", "") };
+
+    private static final int ENVIRONMENT_CODE_LENGTH = 15;
+    private static final int ENVIRONMENT_ENTRIES_LENGTH = 50;
+
+    private static final String TWO_HUNDRED_AND_FIFTY_SIX_ZEROS = String
+            .format("%0256d", Integer.valueOf(0));
+
+    private static final String VERSION = "V4R1M151024";
+
+    private static final String CHG_ENV_FUNCTION_STRING = "C(COL;CHG;) 1(IU;;{0}) P("
+            + TWO_HUNDRED_AND_FIFTY_SIX_ZEROS
+            + ") INPUT(<UISmeup><Setup><LO version=\"" + VERSION
+            + "\"></LO></Setup></UISmeup>)";
+
+    @Inject
+    private ProgramCallHandler programCallHandler;
+
+    @Inject
+    private DataQueueWriter dataQueueWriter;
+
+    @Inject
+    private DataQueueReader dataQueueReader;
+
+    public LoginResponse.Data login(final String user, final String password,
+            final String environment, final int ccsid, final String server) {
+
+        final String env = environment.trim();
+        String sessionId = null;
+        String initXML = null;
+        final ProgramCall call = getProgramCallHandler()
+                .createCall(CREATION_PARAMS);
+        boolean exitStatus = false;
+        try {
+            exitStatus = call.run();
+        } catch (AS400SecurityException | ErrorCompletingRequestException
+                | IOException | InterruptedException
+                | ObjectDoesNotExistException e) {
+            throw new CommunicationException(e);
+        }
+        if (exitStatus) {
+            sessionId = new AS400Text(CREATION_PARAMS[8].length(), ccsid)
+                    .toObject(call.getParameterList()[8].getOutputData())
+                    .toString().substring(30, 36);
+            final Optional<Integer> environmentCode = resolveCode(env, ccsid);
+
+            if (environmentCode.isPresent()) {
+
+                initXML = changeEnvironment(environmentCode.get());
+            }
+
+        } else {
+            throw new CommunicationException(
+                    "Program call to: " + call.getProgram() + " failed");
+        }
+
+        final LoginResponse.Data response = new LoginResponse.Data();
+        response.setJwt(sessionId);
+        response.setInitXML(initXML);
+
+        return response;
+    }
+
+    private String changeEnvironment(final Integer environment)
+            throws CommunicationException {
+
+        final String fun = MessageFormat.format(CHG_ENV_FUNCTION_STRING,
+                String.format("%04d", environment));
+        getDataQueueWriter().writeToQueue(fun);
+        return getDataQueueReader()
+                .readFromQueue(new FUNParser().parse(fun).isCOM_or_FUN());
+    }
+
+    private Optional<Integer> resolveCode(final String env, final int ccsid) {
+
+        Optional<Integer> code = null;
+        final ProgramCall call = getProgramCallHandler()
+                .createCall(ENVIRONMENTS);
+        boolean exitStatus = false;
+        try {
+            exitStatus = call.run();
+        } catch (AS400SecurityException | ErrorCompletingRequestException
+                | IOException | InterruptedException
+                | ObjectDoesNotExistException e) {
+
+            throw new CommunicationException(e);
+        }
+        if (exitStatus) {
+            code = extractCode(new AS400Text(ENVIRONMENTS[8].length(), ccsid)
+                    .toObject(call.getParameterList()[8].getOutputData())
+                    .toString(), env);
+        } else {
+            throw new CommunicationException(
+                    "Program call to: " + call.getProgram() + " failed");
+        }
+        return code;
+    }
+
+    public ProgramCallHandler getProgramCallHandler() {
+        return this.programCallHandler;
+    }
+
+    public void setProgramCallHandler(
+            final ProgramCallHandler programCallHandler) {
+        this.programCallHandler = programCallHandler;
+    }
+
+    private Optional<Integer> extractCode(final String environments,
+            final String env) {
+
+        Optional<Integer> result = null;
+        final Map<Integer, String> map = toMap(environments);
+
+        Integer envAsIntger;
+        try {
+            envAsIntger = Integer.valueOf(env);
+            if (map.containsKey(envAsIntger))
+                result = Optional.of(envAsIntger);
+        } catch (final NumberFormatException numberFormatException) {
+
+            result = map.entrySet().stream()
+                    .map(e -> e.getValue().split("\\s+")[0]
+                            .equalsIgnoreCase(env) ? e.getKey() : null)
+                    .filter(v -> null != v).findAny();
+        }
+        return result;
+    }
+
+    private Map<Integer, String> toMap(final String envs) {
+
+        final Map<Integer, String> map = Streams
+                .stream(Splitter
+                        .fixedLength(ENVIRONMENT_ENTRIES_LENGTH).split(envs))
+                .filter(s -> !s.trim().isEmpty())
+                .collect(Collectors.toMap(
+                        s -> Integer.valueOf(
+                                s.substring(0, ENVIRONMENT_CODE_LENGTH).trim()),
+                        s -> s.substring(ENVIRONMENT_CODE_LENGTH,
+                                ENVIRONMENT_ENTRIES_LENGTH)));
+        return map;
+    }
+
+    public DataQueueWriter getDataQueueWriter() {
+        return this.dataQueueWriter;
+    }
+
+    public void setDataQueueWriter(final DataQueueWriter dataQueueWriter) {
+        this.dataQueueWriter = dataQueueWriter;
+    }
+
+    public DataQueueReader getDataQueueReader() {
+        return this.dataQueueReader;
+    }
+
+    public void setDataQueueReader(final DataQueueReader dataQueueReader) {
+        this.dataQueueReader = dataQueueReader;
+    }
+
+}
