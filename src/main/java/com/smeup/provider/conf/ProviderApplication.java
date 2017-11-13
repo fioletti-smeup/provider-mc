@@ -5,10 +5,13 @@ import java.util.Set;
 
 import javax.ws.rs.ApplicationPath;
 
+import com.smeup.provider.AuthFilter;
 import com.smeup.provider.Provider;
+import com.smeup.provider.mapper.CommunicationExceptionMapper;
 import com.smeup.provider.mapper.FunParseExceptionMapper;
 import com.smeup.provider.mapper.NotFoundExceptionMapper;
 import com.smeup.provider.mapper.RuntimeExceptionMapper;
+import com.smeup.provider.mapper.XMLParseExceptionMapper;
 
 @ApplicationPath("/")
 public class ProviderApplication extends javax.ws.rs.core.Application {
@@ -16,10 +19,13 @@ public class ProviderApplication extends javax.ws.rs.core.Application {
     @Override
     public Set<Class<?>> getClasses() {
         final Set<Class<?>> s = new HashSet<Class<?>>();
+        s.add(AuthFilter.class);
         s.add(Provider.class);
-        s.add(RuntimeExceptionMapper.class);
-        s.add(NotFoundExceptionMapper.class);
+        s.add(CommunicationExceptionMapper.class);
         s.add(FunParseExceptionMapper.class);
+        s.add(NotFoundExceptionMapper.class);
+        s.add(RuntimeExceptionMapper.class);
+        s.add(XMLParseExceptionMapper.class);
         return s;
     }
 }

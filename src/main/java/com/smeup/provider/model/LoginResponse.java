@@ -14,11 +14,11 @@ public class LoginResponse implements Serializable{
 
         private String initXML;
 
-        public String getJwt() {
+        public String getJWT() {
             return this.jwt;
         }
 
-        public void setJwt(final String jwt) {
+        public void setJWT(final String jwt) {
             this.jwt = jwt;
         }
 

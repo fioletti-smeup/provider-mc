@@ -2,6 +2,7 @@ package com.smeup.provider.smeup.connector.as400.operations;
 
 import java.beans.PropertyVetoException;
 
+import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 
 import com.ibm.as400.access.AS400;
@@ -9,7 +10,7 @@ import com.ibm.as400.access.AS400Text;
 import com.ibm.as400.access.ProgramCall;
 import com.ibm.as400.access.ProgramParameter;
 import com.ibm.as400.access.QSYSObjectPathName;
-import com.smeup.provider.smeup.connector.as400.as400.qualifiers.CCSID;
+import com.smeup.provider.model.SmeupSession;
 
 public class ProgramCallHandler {
 
@@ -20,11 +21,10 @@ public class ProgramCallHandler {
     private static final int TIMEOUT = 30; // Seconds
 
     @Inject
-    @CCSID
-    private Integer ccsid;
+    private SmeupSession smeupSession;
 
     @Inject
-    private AS400 as400;
+    private Instance<AS400> as400;
 
     private static final QSYSObjectPathName PROGRAM_PATH_NAME = new QSYSObjectPathName(
             DEFAULT_LIBRARIES, DEFAULT_PROGRAM, "PGM");
@@ -33,7 +33,7 @@ public class ProgramCallHandler {
 
         final ProgramCall call = new ProgramCall();
         try {
-            call.setSystem(getAS400());
+            call.setSystem(getAS400().get());
             call.setProgram(PROGRAM_PATH_NAME.getPath());
             call.setParameterList(createParameterList(params));
         } catch (final PropertyVetoException e) {
@@ -50,7 +50,8 @@ public class ProgramCallHandler {
 
         final ProgramParameter[] programParameters = new ProgramParameter[params.length];
         int i = 0;
-        final AS400Text[] texts = createAS400Texts(params, getCCSID());
+        final AS400Text[] texts = createAS400Texts(params,
+                getSmeupSession().getCCSID());
         for (final String param : params) {
 
             programParameters[i] = new ProgramParameter(texts[i].toBytes(param),
@@ -58,14 +59,6 @@ public class ProgramCallHandler {
             i++;
         }
         return programParameters;
-    }
-
-    public Integer getCCSID() {
-        return this.ccsid;
-    }
-
-    public void setCCSID(final Integer ccsid) {
-        this.ccsid = ccsid;
     }
 
     private AS400Text[] createAS400Texts(final String[] params,
@@ -80,11 +73,19 @@ public class ProgramCallHandler {
         return txts;
     }
 
-    public AS400 getAS400() {
+    public Instance<AS400> getAS400() {
         return this.as400;
     }
 
-    public void setAS400(final AS400 as400) {
+    public void setAS400(final Instance<AS400> as400) {
         this.as400 = as400;
+    }
+
+    public SmeupSession getSmeupSession() {
+        return this.smeupSession;
+    }
+
+    public void setSmeupSession(final SmeupSession smeupSession) {
+        this.smeupSession = smeupSession;
     }
 }

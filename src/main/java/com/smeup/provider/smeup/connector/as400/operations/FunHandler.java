@@ -1,5 +1,7 @@
 package com.smeup.provider.smeup.connector.as400.operations;
 
+import javax.inject.Inject;
+
 import com.smeup.provider.model.FunResponse;
 import com.smeup.provider.smeup.connector.as400.DataQueueReader;
 import com.smeup.provider.smeup.connector.as400.DataQueueWriter;
@@ -7,8 +9,10 @@ import com.smeup.provider.smeup.connector.as400.FUNParser;
 
 public class FunHandler {
 
+    @Inject
     private DataQueueWriter dataQueueWriter;
 
+    @Inject
     private DataQueueReader dataQueueReader;
 
     public FunResponse.Data executeFun(final String fun) {

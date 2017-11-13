@@ -2,6 +2,7 @@ package com.smeup.provider.smeup.connector.as400;
 
 import java.io.IOException;
 
+import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 
 import com.ibm.as400.access.AS400;
@@ -11,7 +12,7 @@ import com.ibm.as400.access.ErrorCompletingRequestException;
 import com.ibm.as400.access.IllegalObjectTypeException;
 import com.ibm.as400.access.ObjectDoesNotExistException;
 import com.ibm.as400.access.QSYSObjectPathName;
-import com.smeup.provider.smeup.connector.as400.as400.qualifiers.SessionId;
+import com.smeup.provider.model.SmeupSession;
 import com.smeup.provider.smeup.connector.as400.operations.CommunicationException;
 
 public class DataQueueWriter {
@@ -21,14 +22,10 @@ public class DataQueueWriter {
     private static final String IN_QUEUE_PREFIX = "ECTS";
 
     @Inject
-    private AS400 as400;
+    private Instance<AS400> as400;
 
     @Inject
-    private Integer CCSID;
-
-    @Inject
-    @SessionId
-    private String sessionId;
+    private SmeupSession smeupSession;
 
     public void writeToQueue(final String fun) throws CommunicationException {
 
@@ -46,40 +43,32 @@ public class DataQueueWriter {
 
     private DataQueue createDataQueue(final String outQueuePrefix) {
 
-        final DataQueue dataQueue = new DataQueue(getAS400(),
+        final DataQueue dataQueue = new DataQueue(getAS400().get(),
                 new QSYSObjectPathName(QUEUE_LIB,
-                        outQueuePrefix + getSessionId(), "DTAQ").getPath());
+                        outQueuePrefix + getSmeupSession().getSessionId(), "DTAQ").getPath());
         return dataQueue;
     }
 
     private InputCalculator getInputCalculator() {
 
         final InputCalculator inputCalculator = new InputCalculator();
-        inputCalculator.setCcsid(getCCSID());
+        inputCalculator.setCcsid(getSmeupSession().getCCSID());
         return inputCalculator;
     }
 
-    public AS400 getAS400() {
+    public Instance<AS400> getAS400() {
         return this.as400;
     }
 
-    public void setAS400(final AS400 as400) {
+    public void setAS400(final Instance<AS400> as400) {
         this.as400 = as400;
     }
 
-    public Integer getCCSID() {
-        return this.CCSID;
+    public SmeupSession getSmeupSession() {
+        return this.smeupSession;
     }
 
-    public void setCCSID(final Integer cCSID) {
-        this.CCSID = cCSID;
-    }
-
-    public String getSessionId() {
-        return this.sessionId;
-    }
-
-    public void setSessionId(final String sessionId) {
-        this.sessionId = sessionId;
+    public void setSmeupSession(final SmeupSession smeupSession) {
+        this.smeupSession = smeupSession;
     }
 }

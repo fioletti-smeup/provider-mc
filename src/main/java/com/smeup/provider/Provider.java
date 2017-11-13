@@ -10,6 +10,7 @@ import javax.ws.rs.core.Response;
 
 import com.smeup.provider.model.FunResponse;
 import com.smeup.provider.model.LoginResponse;
+import com.smeup.provider.model.SmeupSession;
 import com.smeup.provider.smeup.connector.as400.LogoutHandler;
 import com.smeup.provider.smeup.connector.as400.operations.FunHandler;
 import com.smeup.provider.smeup.connector.as400.operations.LoginHandler;
@@ -26,6 +27,10 @@ public class Provider {
     @Inject
     private LogoutHandler logoutHandler;
 
+    @Inject
+    private SmeupSession smeupSession;
+
+    @Secured
     @Path("fun")
     @POST
     @Produces(MediaType.APPLICATION_JSON)
@@ -38,13 +43,14 @@ public class Provider {
         return Response.ok(data).build();
     }
 
-    @Path("disconnect")
+    @Secured
+    @Path("logout")
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     // TODO retrieve sessionId, ccsid and server from jwt
-    public Response disconnect() {
+    public Response logout() {
 
-        getLogoutHandler().disconnect();
+        getLogoutHandler().logout();
         return Response.ok("").build();
     }
 
@@ -57,11 +63,15 @@ public class Provider {
             @FormParam("ccsid") final int ccsid,
             @FormParam("server") final String server) {
 
-        final LoginResponse.Data data = getLoginHandler().login(user,
-                password, environment, ccsid, server);
+        getSmeupSession().setServer(server);
+        getSmeupSession().setUser(user);
+        getSmeupSession().setEnvironment(environment);
+        getSmeupSession().setPassword(password);
+        getSmeupSession().setCCSID(ccsid);
+        final LoginResponse.Data data = getLoginHandler().login();
         final LoginResponse login = new LoginResponse();
         login.setData(data);
-        return Response.ok(data).build();
+        return Response.ok(login).build();
     }
 
     public FunHandler getFunHandler() {
@@ -86,5 +96,13 @@ public class Provider {
 
     public void setLogoutHandler(final LogoutHandler logoutHandler) {
         this.logoutHandler = logoutHandler;
+    }
+
+    public SmeupSession getSmeupSession() {
+        return this.smeupSession;
+    }
+
+    public void setSmeupSession(final SmeupSession smeupSession) {
+        this.smeupSession = smeupSession;
     }
 }

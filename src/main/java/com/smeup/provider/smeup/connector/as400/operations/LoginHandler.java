@@ -2,6 +2,7 @@ package com.smeup.provider.smeup.connector.as400.operations;
 
 import java.io.IOException;
 import java.text.MessageFormat;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -15,12 +16,17 @@ import com.ibm.as400.access.AS400Text;
 import com.ibm.as400.access.ErrorCompletingRequestException;
 import com.ibm.as400.access.ObjectDoesNotExistException;
 import com.ibm.as400.access.ProgramCall;
+import com.smeup.provider.JWTManager;
 import com.smeup.provider.model.LoginResponse;
+import com.smeup.provider.model.SmeupSession;
 import com.smeup.provider.smeup.connector.as400.DataQueueReader;
 import com.smeup.provider.smeup.connector.as400.DataQueueWriter;
 import com.smeup.provider.smeup.connector.as400.FUNParser;
 
 public class LoginHandler {
+
+    @Inject
+    private JWTManager jwtManager;
 
     private static final String[] CREATION_PARAMS = {
             String.format("%1$-" + 10 + "s", "JA"),
@@ -66,12 +72,12 @@ public class LoginHandler {
     @Inject
     private DataQueueReader dataQueueReader;
 
-    public LoginResponse.Data login(final String user, final String password,
-            final String environment, final int ccsid, final String server) {
+    @Inject
+    private SmeupSession smeupSession;
 
-        final String env = environment.trim();
+    public LoginResponse.Data login() {
+
         String sessionId = null;
-        String initXML = null;
         final ProgramCall call = getProgramCallHandler()
                 .createCall(CREATION_PARAMS);
         boolean exitStatus = false;
@@ -82,25 +88,33 @@ public class LoginHandler {
                 | ObjectDoesNotExistException e) {
             throw new CommunicationException(e);
         }
+        final LoginResponse.Data response = new LoginResponse.Data();
         if (exitStatus) {
-            sessionId = new AS400Text(CREATION_PARAMS[8].length(), ccsid)
+            sessionId = new AS400Text(CREATION_PARAMS[8].length(), getSmeupSession().getCCSID())
                     .toObject(call.getParameterList()[8].getOutputData())
                     .toString().substring(30, 36);
-            final Optional<Integer> environmentCode = resolveCode(env, ccsid);
+            getSmeupSession().setSessionId(sessionId);
+            final Optional<Integer> environmentCode = resolveCode(getSmeupSession().getEnvironment(), getSmeupSession().getCCSID());
 
+            String initXML = null;
             if (environmentCode.isPresent()) {
 
                 initXML = changeEnvironment(environmentCode.get());
+                if (null != initXML && !initXML.trim().isEmpty()) {
+
+                    response.setInitXML(initXML);
+                    final Map<String,Object> claims = new HashMap<>();
+                    claims.put(SmeupSession.Claims.SERVER.name(), String.valueOf(getSmeupSession().getServer()));
+                    claims.put(SmeupSession.Claims.SESSION_ID.name(), String.valueOf(getSmeupSession().getSessionId()));
+                    claims.put(SmeupSession.Claims.CCSID.name(), String.valueOf(getSmeupSession().getCCSID()));
+                    response.setJWT(getJWTManager().sign(claims));
+                }
             }
 
         } else {
             throw new CommunicationException(
                     "Program call to: " + call.getProgram() + " failed");
         }
-
-        final LoginResponse.Data response = new LoginResponse.Data();
-        response.setJwt(sessionId);
-        response.setInitXML(initXML);
 
         return response;
     }
@@ -198,6 +212,22 @@ public class LoginHandler {
 
     public void setDataQueueReader(final DataQueueReader dataQueueReader) {
         this.dataQueueReader = dataQueueReader;
+    }
+
+    public JWTManager getJWTManager() {
+        return this.jwtManager;
+    }
+
+    public void setJWTManager(final JWTManager jwtManager) {
+        this.jwtManager = jwtManager;
+    }
+
+    public SmeupSession getSmeupSession() {
+        return this.smeupSession;
+    }
+
+    public void setSmeupSession(final SmeupSession smeupSession) {
+        this.smeupSession = smeupSession;
     }
 
 }

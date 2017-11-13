@@ -3,7 +3,6 @@ package com.smeup.provider;
 import java.io.IOException;
 import java.util.Map;
 
-import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.container.ContainerRequestContext;
@@ -20,7 +19,7 @@ import com.smeup.provider.model.SmeupSession.Claims;
 public class AuthFilter implements ContainerRequestFilter {
 
     @Inject
-    private Event<SmeupSession> smeupSessionEmitter;
+    private SmeupSession smeupSession;
 
     @Override
     public void filter(final ContainerRequestContext requestContext)
@@ -45,8 +44,7 @@ public class AuthFilter implements ContainerRequestFilter {
         try {
 
             // Validate the token
-            final SmeupSession smeupSession = validateToken(token);
-            this.smeupSessionEmitter.fire(smeupSession);
+            validateToken(token);
 
         } catch (final Exception e) {
             requestContext.abortWith(
@@ -54,16 +52,23 @@ public class AuthFilter implements ContainerRequestFilter {
         }
     }
 
-    private SmeupSession validateToken(final String token) throws Exception {
+    private void validateToken(final String token) throws Exception {
 
         final JWTManager jwtManager = new JWTManager();
         final Map<String, Object> claims = jwtManager.verify(token);
-        final SmeupSession smeupSession = new SmeupSession();
-        smeupSession.setServer(
-                claims.get(Claims.SERVER.name()).toString());
-        smeupSession.setSessionId(claims.get(Claims.SESSION_ID.name()).toString());
-        smeupSession.setCCSID(Integer.valueOf(
-                claims.get(Claims.CCSID.name()).toString()));
-        return smeupSession;
+        getSmeupSession()
+        .setServer(claims.get(Claims.SERVER.name()).toString());
+        getSmeupSession()
+        .setSessionId(claims.get(Claims.SESSION_ID.name()).toString());
+        getSmeupSession().setCCSID(
+                Integer.valueOf(claims.get(Claims.CCSID.name()).toString()));
+    }
+
+    public SmeupSession getSmeupSession() {
+        return this.smeupSession;
+    }
+
+    public void setSmeupSession(final SmeupSession smeupSession) {
+        this.smeupSession = smeupSession;
     }
 }

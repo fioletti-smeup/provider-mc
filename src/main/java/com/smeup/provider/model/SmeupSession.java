@@ -2,6 +2,9 @@ package com.smeup.provider.model;
 
 import java.io.Serializable;
 
+import javax.enterprise.context.RequestScoped;
+
+@RequestScoped
 public class SmeupSession implements Serializable {
 
     private static final long serialVersionUID = 1L;
