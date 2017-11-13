@@ -44,7 +44,7 @@ public class LoginHandler {
             String.format("%1$-" + 10 + "s", "LISAMB"),
             String.format("%1$-" + 10 + "s", "LET"),
             String.format("%1$-" + 10 + "s", "IU"),
-            String.format("%1$-" + 15 + "s", "FIOGIA"),
+            String.format("%1$-" + 15 + "s", ""),
             String.format("%1$-" + 15 + "s", ""),
             String.format("%1$-" + 512 + "s", ""),
             String.format("%1$-" + 128 + "s", ""),
