@@ -38,7 +38,6 @@
 			<groupId>net.sf.jt400</groupId>
 			<artifactId>jt400</artifactId>
 			<version>9.4</version>
-			<scope>runtime</scope>
 		</dependency>
 
 		<dependency>
