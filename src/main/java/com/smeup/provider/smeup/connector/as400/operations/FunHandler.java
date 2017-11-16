@@ -2,7 +2,6 @@ package com.smeup.provider.smeup.connector.as400.operations;
 
 import javax.inject.Inject;
 
-import com.smeup.provider.model.FunResponse;
 import com.smeup.provider.smeup.connector.as400.DataQueueReader;
 import com.smeup.provider.smeup.connector.as400.DataQueueWriter;
 import com.smeup.provider.smeup.connector.as400.FUNParser;
@@ -15,26 +14,13 @@ public class FunHandler {
     @Inject
     private DataQueueReader dataQueueReader;
 
-    public FunResponse.Data executeFun(final String fun) {
+    public String executeFun(final String fun) {
 
         String xml = null;
-        try {
-            getDataQueueWriter().writeToQueue(fun);
-        } catch (final CommunicationException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        try {
-            xml = getDataQueueReader()
-                    .readFromQueue(new FUNParser().parse(fun).isCOM_or_FUN());
-        } catch (final CommunicationException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        final FunResponse.Data data = new FunResponse.Data();
-        data.setResponse(xml);
-
-        return data;
+        getDataQueueWriter().writeToQueue(fun);
+        xml = getDataQueueReader()
+                .readFromQueue(new FUNParser().parse(fun).isCOM_or_FUN());
+        return xml;
     }
 
     public DataQueueWriter getDataQueueWriter() {

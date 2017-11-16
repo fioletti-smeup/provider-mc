@@ -2,6 +2,7 @@ package com.smeup.provider.model;
 
 import java.io.Serializable;
 
+@Deprecated
 public class FunResponse implements Serializable {
 
     private static final long serialVersionUID = 1L;

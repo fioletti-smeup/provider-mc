@@ -9,10 +9,6 @@ public class SmeupSession implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    public enum Claims {
-        SERVER, CCSID, SESSION_ID
-    }
-
     private String server;
     private String user;
     private String password;

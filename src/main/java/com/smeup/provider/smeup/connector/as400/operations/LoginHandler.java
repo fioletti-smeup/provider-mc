@@ -16,6 +16,7 @@ import com.ibm.as400.access.AS400Text;
 import com.ibm.as400.access.ErrorCompletingRequestException;
 import com.ibm.as400.access.ObjectDoesNotExistException;
 import com.ibm.as400.access.ProgramCall;
+import com.smeup.provider.Claims;
 import com.smeup.provider.JWTManager;
 import com.smeup.provider.model.LoginResponse;
 import com.smeup.provider.model.SmeupSession;
@@ -90,11 +91,15 @@ public class LoginHandler {
         }
         final LoginResponse.Data response = new LoginResponse.Data();
         if (exitStatus) {
-            sessionId = new AS400Text(CREATION_PARAMS[8].length(), getSmeupSession().getCCSID())
-                    .toObject(call.getParameterList()[8].getOutputData())
+            sessionId = new AS400Text(CREATION_PARAMS[8].length(),
+                    getSmeupSession().getCCSID())
+                    .toObject(
+                            call.getParameterList()[8].getOutputData())
                     .toString().substring(30, 36);
             getSmeupSession().setSessionId(sessionId);
-            final Optional<Integer> environmentCode = resolveCode(getSmeupSession().getEnvironment(), getSmeupSession().getCCSID());
+            final Optional<Integer> environmentCode = resolveCode(
+                    getSmeupSession().getEnvironment(),
+                    getSmeupSession().getCCSID());
 
             String initXML = null;
             if (environmentCode.isPresent()) {
@@ -103,10 +108,13 @@ public class LoginHandler {
                 if (null != initXML && !initXML.trim().isEmpty()) {
 
                     response.setInitXML(initXML);
-                    final Map<String,Object> claims = new HashMap<>();
-                    claims.put(SmeupSession.Claims.SERVER.name(), String.valueOf(getSmeupSession().getServer()));
-                    claims.put(SmeupSession.Claims.SESSION_ID.name(), String.valueOf(getSmeupSession().getSessionId()));
-                    claims.put(SmeupSession.Claims.CCSID.name(), String.valueOf(getSmeupSession().getCCSID()));
+                    final Map<String, Object> claims = new HashMap<>();
+                    claims.put(Claims.SERVER.name(),
+                            String.valueOf(getSmeupSession().getServer()));
+                    claims.put(Claims.SESSION_ID.name(),
+                            String.valueOf(getSmeupSession().getSessionId()));
+                    claims.put(Claims.CCSID.name(),
+                            String.valueOf(getSmeupSession().getCCSID()));
                     response.setJWT(getJWTManager().sign(claims));
                 }
             }

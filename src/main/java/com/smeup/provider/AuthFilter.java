@@ -12,7 +12,6 @@ import javax.ws.rs.ext.Provider;
 
 import com.google.common.net.HttpHeaders;
 import com.smeup.provider.model.SmeupSession;
-import com.smeup.provider.model.SmeupSession.Claims;
 
 @Secured
 @Provider
