@@ -11,6 +11,7 @@ import com.ibm.as400.access.AS400;
 import com.ibm.as400.access.AS400ConnectionPool;
 import com.ibm.as400.access.ConnectionPoolException;
 import com.smeup.provider.model.SmeupSession;
+import com.smeup.provider.smeup.connector.as400.as400.qualifiers.OfUser;
 
 @ApplicationScoped
 public class AS400Producer {
@@ -40,26 +41,36 @@ public class AS400Producer {
     }
 
     @Produces
+    @OfUser
+    @RequestScoped
+    public AS400 provideForUser() {
+
+        AS400 as400 = null;
+        try {
+            as400 = getAs400ConnectionPool().getConnection(
+                    getSmeupSession().getServer(), getSmeupSession().getUser(),
+                    getSmeupSession().getPassword());
+        } catch (final ConnectionPoolException e) {
+
+            throw new CommunicationException(e);
+        }
+        return as400;
+    }
+
+    @Produces
     @RequestScoped
     public AS400 provide() {
 
         AS400 as400 = null;
         try {
-            if (null == getSmeupSession().getUser()) {
-                as400 = getAs400ConnectionPool().getConnection(getServer(),
-                        getUser(), getPassword());
-            }
-            else {
 
-                as400 = getAs400ConnectionPool().getConnection(
-                        getSmeupSession().getServer(),
-                        getSmeupSession().getUser(),
-                        getSmeupSession().getPassword());
-            }
+            as400 = getAs400ConnectionPool().getConnection(
+                    getSmeupSession().getServer(), getSmeupSession().getUser(),
+                    getSmeupSession().getPassword());
 
         } catch (final ConnectionPoolException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+
+            throw new CommunicationException(e);
         }
         return as400;
 

@@ -2,7 +2,6 @@ package com.smeup.provider.smeup.connector.as400.operations;
 
 import java.beans.PropertyVetoException;
 
-import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 
 import com.ibm.as400.access.AS400;
@@ -23,21 +22,17 @@ public class ProgramCallHandler {
     @Inject
     private SmeupSession smeupSession;
 
-    @Inject
-    private Instance<AS400> as400;
-
     private static final QSYSObjectPathName PROGRAM_PATH_NAME = new QSYSObjectPathName(
             DEFAULT_LIBRARIES, DEFAULT_PROGRAM, "PGM");
 
-    public ProgramCall createCall(final String[] params) {
+    public ProgramCall createCall(final AS400 as400, final String[] params) {
 
         final ProgramCall call = new ProgramCall();
         try {
-            call.setSystem(getAS400().get());
+            call.setSystem(as400);
             call.setProgram(PROGRAM_PATH_NAME.getPath());
             call.setParameterList(createParameterList(params));
         } catch (final PropertyVetoException e) {
-            e.printStackTrace();
             throw new CommunicationException(e);
         }
 
@@ -71,14 +66,6 @@ public class ProgramCallHandler {
             i++;
         }
         return txts;
-    }
-
-    public Instance<AS400> getAS400() {
-        return this.as400;
-    }
-
-    public void setAS400(final Instance<AS400> as400) {
-        this.as400 = as400;
     }
 
     public SmeupSession getSmeupSession() {

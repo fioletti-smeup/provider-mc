@@ -3,8 +3,10 @@ package com.smeup.provider.smeup.connector.as400;
 import java.beans.PropertyVetoException;
 import java.io.IOException;
 
+import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 
+import com.ibm.as400.access.AS400;
 import com.ibm.as400.access.AS400SecurityException;
 import com.ibm.as400.access.AS400Text;
 import com.ibm.as400.access.ErrorCompletingRequestException;
@@ -34,10 +36,13 @@ public class LogoutHandler {
     @Inject
     private ProgramCallHandler programCallHandler;
 
+    @Inject
+    private Instance<AS400> as400;
+
     public void logout() {
 
         final ProgramCall call = getProgramCallHandler()
-                .createCall(DESTRUCTION_PARAMS);
+                .createCall(getAS400().get(), DESTRUCTION_PARAMS);
         try {
             final String texts_6 = DESTRUCTION_PARAMS[6].substring(0, 35)
                     + getSmeupSession().getSessionId()
@@ -71,5 +76,13 @@ public class LogoutHandler {
 
     public void setSmeupSession(final SmeupSession smeupSession) {
         this.smeupSession = smeupSession;
+    }
+
+    public Instance<AS400> getAS400() {
+        return this.as400;
+    }
+
+    public void setAs400(final Instance<AS400> as400) {
+        this.as400 = as400;
     }
 }

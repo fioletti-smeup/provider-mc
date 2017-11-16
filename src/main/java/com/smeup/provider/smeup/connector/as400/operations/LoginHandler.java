@@ -7,10 +7,12 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.Streams;
+import com.ibm.as400.access.AS400;
 import com.ibm.as400.access.AS400SecurityException;
 import com.ibm.as400.access.AS400Text;
 import com.ibm.as400.access.ErrorCompletingRequestException;
@@ -25,9 +27,6 @@ import com.smeup.provider.smeup.connector.as400.DataQueueWriter;
 import com.smeup.provider.smeup.connector.as400.FUNParser;
 
 public class LoginHandler {
-
-    @Inject
-    private JWTManager jwtManager;
 
     private static final String[] CREATION_PARAMS = {
             String.format("%1$-" + 10 + "s", "JA"),
@@ -65,6 +64,9 @@ public class LoginHandler {
             + "\"></LO></Setup></UISmeup>)";
 
     @Inject
+    private JWTManager jwtManager;
+
+    @Inject
     private ProgramCallHandler programCallHandler;
 
     @Inject
@@ -76,11 +78,14 @@ public class LoginHandler {
     @Inject
     private SmeupSession smeupSession;
 
+    @Inject
+    private Instance<AS400> as400OfUser;
+
     public LoginResponse.Data login() {
 
         String sessionId = null;
         final ProgramCall call = getProgramCallHandler()
-                .createCall(CREATION_PARAMS);
+                .createCall(getAs400OfUser().get(), CREATION_PARAMS);
         boolean exitStatus = false;
         try {
             exitStatus = call.run();
@@ -141,7 +146,7 @@ public class LoginHandler {
 
         Optional<Integer> code = null;
         final ProgramCall call = getProgramCallHandler()
-                .createCall(ENVIRONMENTS);
+                .createCall(getAs400OfUser().get(), ENVIRONMENTS);
         boolean exitStatus = false;
         try {
             exitStatus = call.run();
@@ -236,6 +241,14 @@ public class LoginHandler {
 
     public void setSmeupSession(final SmeupSession smeupSession) {
         this.smeupSession = smeupSession;
+    }
+
+    public Instance<AS400> getAs400OfUser() {
+        return this.as400OfUser;
+    }
+
+    public void setAs400OfUser(final Instance<AS400> as400OfUser) {
+        this.as400OfUser = as400OfUser;
     }
 
 }
