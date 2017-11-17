@@ -10,6 +10,7 @@ import com.ibm.as400.access.AS400;
 import com.ibm.as400.access.AS400ConnectionPool;
 import com.ibm.as400.access.ConnectionPoolException;
 import com.smeup.provider.model.Credentials;
+import com.smeup.provider.model.FixedCredentials;
 import com.smeup.provider.model.SmeupSession;
 import com.smeup.provider.smeup.connector.as400.as400.qualifiers.OfUser;
 
@@ -28,6 +29,9 @@ public class AS400Producer {
     @Inject
     private Instance<Credentials> credentials;
 
+    @Inject
+    private Instance<FixedCredentials> fixedCredentials;
+
     @Produces
     @OfUser
     @RequestScoped
@@ -35,7 +39,8 @@ public class AS400Producer {
 
         AS400 as400;
         try {
-            as400 = getAs400ConnectionPool().get().getConnection(getServer(),
+            as400 = getAs400ConnectionPool().get().getConnection(
+                    getFixedCredentials().get().getServer(),
                     getCredentials().get().getUser(),
                     getCredentials().get().getPassword());
         } catch (final ConnectionPoolException e) {
@@ -52,8 +57,10 @@ public class AS400Producer {
         AS400 as400;
         try {
 
-            as400 = getAs400ConnectionPool().get().getConnection(getServer(),
-                    getUser(), getPassword());
+            final FixedCredentials fixedCredentials = getFixedCredentials().get();
+            as400 = getAs400ConnectionPool().get().getConnection(
+                    fixedCredentials.getServer(), fixedCredentials.getUser(),
+                    fixedCredentials.getPassword());
 
         } catch (final ConnectionPoolException e) {
 
@@ -98,16 +105,13 @@ public class AS400Producer {
         this.credentials = credentials;
     }
 
-    public String getUser() {
-        return System.getenv(AS400Producer.USER);
+    public Instance<FixedCredentials> getFixedCredentials() {
+        return this.fixedCredentials;
     }
 
-    public String getPassword() {
-        return System.getenv(AS400Producer.PASSWORD);
-    }
-
-    public String getServer() {
-        return System.getenv(AS400Producer.SERVER);
+    public void setFixedCredentials(
+            final Instance<FixedCredentials> fixedCredentials) {
+        this.fixedCredentials = fixedCredentials;
     }
 
 }
