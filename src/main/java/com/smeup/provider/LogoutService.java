@@ -12,7 +12,7 @@ import com.smeup.provider.smeup.connector.as400.LogoutHandler;
 @Secured
 @Path("logout")
 @Produces(MediaType.APPLICATION_JSON)
-public class LogoutProvider {
+public class LogoutService {
 
     @Inject
     private LogoutHandler logoutHandler;

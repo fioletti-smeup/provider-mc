@@ -282,8 +282,4 @@ public class FUN {
     public void setVirtualFUNParam(final String virtualFUNParam) {
         this.virtualFUNParam = virtualFUNParam;
     }
-
-    public boolean isCOM_or_FUN() {
-        return "COM".equals(getMessaggio()) || "FUN".equals(getMessaggio());
-    }
 }

@@ -20,11 +20,12 @@ import com.ibm.as400.access.ObjectDoesNotExistException;
 import com.ibm.as400.access.ProgramCall;
 import com.smeup.provider.Claims;
 import com.smeup.provider.JWTManager;
+import com.smeup.provider.model.Credentials;
 import com.smeup.provider.model.LoginResponse;
 import com.smeup.provider.model.SmeupSession;
 import com.smeup.provider.smeup.connector.as400.DataQueueReader;
 import com.smeup.provider.smeup.connector.as400.DataQueueWriter;
-import com.smeup.provider.smeup.connector.as400.FUNParser;
+import com.smeup.provider.smeup.connector.as400.as400.qualifiers.OfUser;
 
 public class LoginHandler {
 
@@ -76,10 +77,14 @@ public class LoginHandler {
     private DataQueueReader dataQueueReader;
 
     @Inject
-    private SmeupSession smeupSession;
+    private Instance<SmeupSession> smeupSession;
 
     @Inject
+    @OfUser
     private Instance<AS400> as400OfUser;
+
+    @Inject
+    private Instance<Credentials> credentials;
 
     public LoginResponse.Data login() {
 
@@ -96,15 +101,16 @@ public class LoginHandler {
         }
         final LoginResponse.Data response = new LoginResponse.Data();
         if (exitStatus) {
+            final SmeupSession smeupSession = getSmeupSession().get();
             sessionId = new AS400Text(CREATION_PARAMS[8].length(),
-                    getSmeupSession().getCCSID())
+                    smeupSession.getCCSID())
                     .toObject(
                             call.getParameterList()[8].getOutputData())
                     .toString().substring(30, 36);
-            getSmeupSession().setSessionId(sessionId);
+            smeupSession.setSessionId(sessionId);
             final Optional<Integer> environmentCode = resolveCode(
-                    getSmeupSession().getEnvironment(),
-                    getSmeupSession().getCCSID());
+                    getCredentials().get().getEnvironment(),
+                    smeupSession.getCCSID());
 
             String initXML = null;
             if (environmentCode.isPresent()) {
@@ -114,12 +120,10 @@ public class LoginHandler {
 
                     response.setInitXML(initXML);
                     final Map<String, Object> claims = new HashMap<>();
-                    claims.put(Claims.SERVER.name(),
-                            String.valueOf(getSmeupSession().getServer()));
                     claims.put(Claims.SESSION_ID.name(),
-                            String.valueOf(getSmeupSession().getSessionId()));
+                            String.valueOf(smeupSession.getSessionId()));
                     claims.put(Claims.CCSID.name(),
-                            String.valueOf(getSmeupSession().getCCSID()));
+                            String.valueOf(smeupSession.getCCSID()));
                     response.setJWT(getJWTManager().sign(claims));
                 }
             }
@@ -139,7 +143,7 @@ public class LoginHandler {
                 String.format("%04d", environment));
         getDataQueueWriter().writeToQueue(fun);
         return getDataQueueReader()
-                .readFromQueue(new FUNParser().parse(fun).isCOM_or_FUN());
+                .readFromQueue();
     }
 
     private Optional<Integer> resolveCode(final String env, final int ccsid) {
@@ -235,11 +239,11 @@ public class LoginHandler {
         this.jwtManager = jwtManager;
     }
 
-    public SmeupSession getSmeupSession() {
+    public Instance<SmeupSession> getSmeupSession() {
         return this.smeupSession;
     }
 
-    public void setSmeupSession(final SmeupSession smeupSession) {
+    public void setSmeupSession(final Instance<SmeupSession> smeupSession) {
         this.smeupSession = smeupSession;
     }
 
@@ -249,6 +253,14 @@ public class LoginHandler {
 
     public void setAs400OfUser(final Instance<AS400> as400OfUser) {
         this.as400OfUser = as400OfUser;
+    }
+
+    public Instance<Credentials> getCredentials() {
+        return this.credentials;
+    }
+
+    public void setCredentials(final Instance<Credentials> credentials) {
+        this.credentials = credentials;
     }
 
 }

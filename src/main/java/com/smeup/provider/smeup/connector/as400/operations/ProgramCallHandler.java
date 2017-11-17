@@ -2,6 +2,7 @@ package com.smeup.provider.smeup.connector.as400.operations;
 
 import java.beans.PropertyVetoException;
 
+import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 
 import com.ibm.as400.access.AS400;
@@ -11,6 +12,7 @@ import com.ibm.as400.access.ProgramParameter;
 import com.ibm.as400.access.QSYSObjectPathName;
 import com.smeup.provider.model.SmeupSession;
 
+@RequestScoped
 public class ProgramCallHandler {
 
     public static final String DEFAULT_LIBRARIES = "*LIBL";
@@ -33,6 +35,8 @@ public class ProgramCallHandler {
             call.setProgram(PROGRAM_PATH_NAME.getPath());
             call.setParameterList(createParameterList(params));
         } catch (final PropertyVetoException e) {
+
+            e.printStackTrace();
             throw new CommunicationException(e);
         }
 

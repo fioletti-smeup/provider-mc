@@ -56,8 +56,6 @@ public class AuthFilter implements ContainerRequestFilter {
         final JWTManager jwtManager = new JWTManager();
         final Map<String, Object> claims = jwtManager.verify(token);
         getSmeupSession()
-        .setServer(claims.get(Claims.SERVER.name()).toString());
-        getSmeupSession()
         .setSessionId(claims.get(Claims.SESSION_ID.name()).toString());
         getSmeupSession().setCCSID(
                 Integer.valueOf(claims.get(Claims.CCSID.name()).toString()));

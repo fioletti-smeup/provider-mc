@@ -1,55 +1,43 @@
 package com.smeup.provider.smeup.connector.as400.operations;
 
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.RequestScoped;
 import javax.enterprise.inject.Disposes;
+import javax.enterprise.inject.Instance;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 
 import com.ibm.as400.access.AS400;
 import com.ibm.as400.access.AS400ConnectionPool;
 import com.ibm.as400.access.ConnectionPoolException;
+import com.smeup.provider.model.Credentials;
 import com.smeup.provider.model.SmeupSession;
 import com.smeup.provider.smeup.connector.as400.as400.qualifiers.OfUser;
 
-@ApplicationScoped
 public class AS400Producer {
 
+    public static final String USER = "SMEUP_USER";
+    public static final String PASSWORD = "SMEUP_PASSWORD";
+    public static final String SERVER = "SMEUP_SERVER";
+
     @Inject
-    private SmeupSession smeupSession;
+    private Instance<AS400ConnectionPool> as400ConnectionPool;
 
-    private static final String USER = "SMEUP_USER";
-    private static final String PASSWORD = "SMEUP_PASSWORD";
-    private static final String SERVER = "SMEUP_SERVER";
+    @Inject
+    private Instance<SmeupSession> smeupSession;
 
-    private AS400ConnectionPool as400ConnectionPool;
-
-    @PostConstruct
-    public void init() {
-
-        this.as400ConnectionPool = new AS400ConnectionPool();
-        try {
-            this.as400ConnectionPool.fill(getServer(), getUser(), getPassword(),
-                    AS400.DATAQUEUE, 8);
-            this.as400ConnectionPool.fill(getServer(), getUser(), getPassword(),
-                    AS400.COMMAND, 4);
-        } catch (final ConnectionPoolException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-    }
+    @Inject
+    private Instance<Credentials> credentials;
 
     @Produces
     @OfUser
     @RequestScoped
     public AS400 provideForUser() {
 
-        AS400 as400 = null;
+        AS400 as400;
         try {
-            as400 = getAs400ConnectionPool().getConnection(
-                    getSmeupSession().getServer(), getSmeupSession().getUser(),
-                    getSmeupSession().getPassword());
+            as400 = getAs400ConnectionPool().get().getConnection(getServer(),
+                    getCredentials().get().getUser(),
+                    getCredentials().get().getPassword());
         } catch (final ConnectionPoolException e) {
 
             throw new CommunicationException(e);
@@ -61,12 +49,11 @@ public class AS400Producer {
     @RequestScoped
     public AS400 provide() {
 
-        AS400 as400 = null;
+        AS400 as400;
         try {
 
-            as400 = getAs400ConnectionPool().getConnection(
-                    getSmeupSession().getServer(), getSmeupSession().getUser(),
-                    getSmeupSession().getPassword());
+            as400 = getAs400ConnectionPool().get().getConnection(getServer(),
+                    getUser(), getPassword());
 
         } catch (final ConnectionPoolException e) {
 
@@ -76,39 +63,51 @@ public class AS400Producer {
 
     }
 
-    public SmeupSession getSmeupSession() {
+    public Instance<SmeupSession> getSmeupSession() {
         return this.smeupSession;
     }
 
-    public void setSmeupSession(final SmeupSession smeupSession) {
+    public void setSmeupSession(final Instance<SmeupSession> smeupSession) {
         this.smeupSession = smeupSession;
     }
 
-    public AS400ConnectionPool getAs400ConnectionPool() {
+    public Instance<AS400ConnectionPool> getAs400ConnectionPool() {
         return this.as400ConnectionPool;
     }
 
     public void setAs400ConnectionPool(
-            final AS400ConnectionPool as400ConnectionPool) {
+            final Instance<AS400ConnectionPool> as400ConnectionPool) {
         this.as400ConnectionPool = as400ConnectionPool;
     }
 
     void close(@Disposes final AS400 as400) {
 
-        getAs400ConnectionPool().returnConnectionToPool(as400);
+        getAs400ConnectionPool().get().returnConnectionToPool(as400);
+    }
 
+    void closeOfUserAS400(@Disposes @OfUser final AS400 as400) {
+
+        as400.disconnectAllServices();
+    }
+
+    public Instance<Credentials> getCredentials() {
+        return this.credentials;
+    }
+
+    public void setCredentials(final Instance<Credentials> credentials) {
+        this.credentials = credentials;
     }
 
     public String getUser() {
-        return System.getenv(USER);
+        return System.getenv(AS400Producer.USER);
     }
 
     public String getPassword() {
-        return System.getenv(PASSWORD);
+        return System.getenv(AS400Producer.PASSWORD);
     }
 
     public String getServer() {
-        return System.getenv(SERVER);
+        return System.getenv(AS400Producer.SERVER);
     }
 
 }

@@ -27,8 +27,7 @@ public class DataQueueReader {
     @Inject
     private SmeupSession smeupSession;
 
-    public String readFromQueue(final boolean RUN_Or_COM)
-            throws CommunicationException {
+    public String readFromQueue() throws CommunicationException {
 
         String buffer = "";
         final DataQueue dataQueue = createDataQueue(OUT_QUEUE_PREFIX);
@@ -44,28 +43,23 @@ public class DataQueueReader {
                                     + dataQueue.getName() + "\" within "
                                     + TIMEOUT + " seconds");
                 }
-                final String row = new CharConverter(getSmeupSession().getCCSID())
+                final String row = new CharConverter(
+                        getSmeupSession().getCCSID())
                         .byteArrayToString(dataQueueEntry.getData());
 
-                if (RUN_Or_COM) {
-                    if (row.length() < HEADER_LENGTH) {
+                if (row.length() < HEADER_LENGTH) {
 
-                        throw new RuntimeException(
-                                "Response with buffer shorter then "
-                                        + HEADER_LENGTH + "(byte): " + row);
-                    }
-                    final String header = row
-                            .substring(HEADER_LENGTH - 10, HEADER_LENGTH)
-                            .trim();
-                    final String content = row.substring(HEADER_LENGTH).trim();
-                    buffer += content;
-                    if ("FINE".equalsIgnoreCase(header)) {
-                        break;
-
-                    }
-                } else {
-
+                    throw new RuntimeException(
+                            "Response with buffer shorter then " + HEADER_LENGTH
+                            + "(byte): " + row);
+                }
+                final String header = row
+                        .substring(HEADER_LENGTH - 10, HEADER_LENGTH).trim();
+                final String content = row.substring(HEADER_LENGTH).trim();
+                buffer += content;
+                if ("FINE".equalsIgnoreCase(header)) {
                     break;
+
                 }
             }
 
@@ -80,7 +74,8 @@ public class DataQueueReader {
 
         final DataQueue dataQueue = new DataQueue(getAS400().get(),
                 new QSYSObjectPathName(QUEUE_LIB,
-                        outQueuePrefix + getSmeupSession().getSessionId(), "DTAQ").getPath());
+                        outQueuePrefix + getSmeupSession().getSessionId(),
+                        "DTAQ").getPath());
         return dataQueue;
     }
 

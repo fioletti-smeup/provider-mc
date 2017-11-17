@@ -25,7 +25,7 @@ public class DataQueueWriter {
     private Instance<AS400> as400;
 
     @Inject
-    private SmeupSession smeupSession;
+    private Instance<SmeupSession> smeupSession;
 
     public void writeToQueue(final String fun) throws CommunicationException {
 
@@ -45,14 +45,15 @@ public class DataQueueWriter {
 
         final DataQueue dataQueue = new DataQueue(getAS400().get(),
                 new QSYSObjectPathName(QUEUE_LIB,
-                        outQueuePrefix + getSmeupSession().getSessionId(), "DTAQ").getPath());
+                        outQueuePrefix + getSmeupSession().get().getSessionId(),
+                        "DTAQ").getPath());
         return dataQueue;
     }
 
     private InputCalculator getInputCalculator() {
 
         final InputCalculator inputCalculator = new InputCalculator();
-        inputCalculator.setCcsid(getSmeupSession().getCCSID());
+        inputCalculator.setCcsid(getSmeupSession().get().getCCSID());
         return inputCalculator;
     }
 
@@ -64,11 +65,11 @@ public class DataQueueWriter {
         this.as400 = as400;
     }
 
-    public SmeupSession getSmeupSession() {
+    public Instance<SmeupSession> getSmeupSession() {
         return this.smeupSession;
     }
 
-    public void setSmeupSession(final SmeupSession smeupSession) {
+    public void setSmeupSession(final Instance<SmeupSession> smeupSession) {
         this.smeupSession = smeupSession;
     }
 }

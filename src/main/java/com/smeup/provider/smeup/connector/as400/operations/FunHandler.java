@@ -4,7 +4,6 @@ import javax.inject.Inject;
 
 import com.smeup.provider.smeup.connector.as400.DataQueueReader;
 import com.smeup.provider.smeup.connector.as400.DataQueueWriter;
-import com.smeup.provider.smeup.connector.as400.FUNParser;
 
 public class FunHandler {
 
@@ -18,8 +17,7 @@ public class FunHandler {
 
         String xml = null;
         getDataQueueWriter().writeToQueue(fun);
-        xml = getDataQueueReader()
-                .readFromQueue(new FUNParser().parse(fun).isCOM_or_FUN());
+        xml = getDataQueueReader().readFromQueue();
         return xml;
     }
 

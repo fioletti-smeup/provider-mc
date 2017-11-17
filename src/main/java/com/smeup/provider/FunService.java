@@ -13,7 +13,7 @@ import com.smeup.provider.smeup.connector.as400.operations.FunHandler;
 @Path("fun")
 @Secured
 @Produces(MediaType.APPLICATION_XML)
-public class FunProvider {
+public class FunService {
 
     private static final String FUN_PARAM = "fun";
 
