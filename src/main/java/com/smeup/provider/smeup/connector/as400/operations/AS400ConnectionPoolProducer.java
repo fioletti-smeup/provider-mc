@@ -1,13 +1,12 @@
 package com.smeup.provider.smeup.connector.as400.operations;
 
+import java.util.logging.Logger;
+
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.context.RequestScoped;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 import javax.servlet.ServletContext;
-
-import org.apache.log4j.Logger;
 
 import com.ibm.as400.access.AS400;
 import com.ibm.as400.access.AS400ConnectionPool;
@@ -48,7 +47,7 @@ public class AS400ConnectionPoolProducer {
     }
 
     @Produces
-    @RequestScoped
+    @ApplicationScoped
     public AS400ConnectionPool getAs400ConnectionPool() {
         return this.as400ConnectionPool;
     }

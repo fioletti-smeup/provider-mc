@@ -119,7 +119,7 @@ public class LoginHandler {
                 if (null != initXML && !initXML.trim().isEmpty()) {
 
                     response.setInitXML(initXML);
-                    final Map<String, Object> claims = new HashMap<>();
+                    final Map<String, String> claims = new HashMap<>();
                     claims.put(Claims.SESSION_ID.name(),
                             String.valueOf(smeupSession.getSessionId()));
                     claims.put(Claims.CCSID.name(),
