@@ -82,8 +82,10 @@ public class AS400ConnectionPoolProducer {
     private String getPrefixedEnvironmentVariable(final String varName) {
 
         final String prefixed = getEnvironmentVariablePrefix() + varName;
-        LOGGER.info("Retrieving environment variable \"" + prefixed + "\"");
-        return System.getenv(prefixed);
+        final String value = System.getenv(prefixed);
+        LOGGER.info(String.format("Read variable: %s=%s", prefixed,
+                AS400Producer.PASSWORD.equals(varName) ? "***" : value));
+        return value;
     }
 
     private String getEnvironmentVariablePrefix() {
