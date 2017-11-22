@@ -10,6 +10,7 @@ import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.Provider;
 
+import com.auth0.jwt.interfaces.Claim;
 import com.google.common.net.HttpHeaders;
 import com.smeup.provider.model.SmeupSession;
 
@@ -37,8 +38,7 @@ public class AuthFilter implements ContainerRequestFilter {
         }
 
         // Extract the token from the HTTP Authorization header
-        final String token = authorizationHeader.substring("Bearer".length())
-                .trim();
+        final String token = authorizationHeader.substring("Bearer ".length());
 
         try {
 
@@ -54,11 +54,11 @@ public class AuthFilter implements ContainerRequestFilter {
     private void validateToken(final String token) throws Exception {
 
         final JWTManager jwtManager = new JWTManager();
-        final Map<String, Object> claims = jwtManager.verify(token);
+        final Map<String, Claim> claims = jwtManager.verify(token).getClaims();
         getSmeupSession()
-        .setSessionId(claims.get(Claims.SESSION_ID.name()).toString());
+        .setSessionId(claims.get(Claims.SESSION_ID.name()).asString());
         getSmeupSession().setCCSID(
-                Integer.valueOf(claims.get(Claims.CCSID.name()).toString()));
+                Integer.valueOf(claims.get(Claims.CCSID.name()).asString()));
     }
 
     public SmeupSession getSmeupSession() {

@@ -2,7 +2,6 @@ package com.smeup.provider.smeup.connector.as400.operations;
 
 import java.io.IOException;
 import java.text.MessageFormat;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -18,10 +17,7 @@ import com.ibm.as400.access.AS400Text;
 import com.ibm.as400.access.ErrorCompletingRequestException;
 import com.ibm.as400.access.ObjectDoesNotExistException;
 import com.ibm.as400.access.ProgramCall;
-import com.smeup.provider.Claims;
-import com.smeup.provider.JWTManager;
 import com.smeup.provider.model.Credentials;
-import com.smeup.provider.model.LoginResponse;
 import com.smeup.provider.model.SmeupSession;
 import com.smeup.provider.smeup.connector.as400.DataQueueReader;
 import com.smeup.provider.smeup.connector.as400.DataQueueWriter;
@@ -65,9 +61,6 @@ public class LoginHandler {
             + "\"></LO></Setup></UISmeup>)";
 
     @Inject
-    private JWTManager jwtManager;
-
-    @Inject
     private ProgramCallHandler programCallHandler;
 
     @Inject
@@ -86,9 +79,10 @@ public class LoginHandler {
     @Inject
     private Instance<Credentials> credentials;
 
-    public LoginResponse.Data login() {
+    public String login() {
 
         String sessionId = null;
+        String initXML;
         final ProgramCall call = getProgramCallHandler()
                 .createCall(getAs400OfUser().get(), CREATION_PARAMS);
         boolean exitStatus = false;
@@ -99,7 +93,6 @@ public class LoginHandler {
                 | ObjectDoesNotExistException e) {
             throw new CommunicationException(e);
         }
-        final LoginResponse.Data response = new LoginResponse.Data();
         if (exitStatus) {
             final SmeupSession smeupSession = getSmeupSession().get();
             sessionId = new AS400Text(CREATION_PARAMS[8].length(),
@@ -112,20 +105,10 @@ public class LoginHandler {
                     getCredentials().get().getEnvironment(),
                     smeupSession.getCCSID());
 
-            String initXML = null;
+            initXML = null;
             if (environmentCode.isPresent()) {
 
                 initXML = changeEnvironment(environmentCode.get());
-                if (null != initXML && !initXML.trim().isEmpty()) {
-
-                    response.setInitXML(initXML);
-                    final Map<String, String> claims = new HashMap<>();
-                    claims.put(Claims.SESSION_ID.name(),
-                            String.valueOf(smeupSession.getSessionId()));
-                    claims.put(Claims.CCSID.name(),
-                            String.valueOf(smeupSession.getCCSID()));
-                    response.setJWT(getJWTManager().sign(claims));
-                }
             }
 
         } else {
@@ -133,7 +116,7 @@ public class LoginHandler {
                     "Program call to: " + call.getProgram() + " failed");
         }
 
-        return response;
+        return initXML;
     }
 
     private String changeEnvironment(final Integer environment)
@@ -142,8 +125,7 @@ public class LoginHandler {
         final String fun = MessageFormat.format(CHG_ENV_FUNCTION_STRING,
                 String.format("%04d", environment));
         getDataQueueWriter().writeToQueue(fun);
-        return getDataQueueReader()
-                .readFromQueue();
+        return getDataQueueReader().readFromQueue();
     }
 
     private Optional<Integer> resolveCode(final String env, final int ccsid) {
@@ -229,14 +211,6 @@ public class LoginHandler {
 
     public void setDataQueueReader(final DataQueueReader dataQueueReader) {
         this.dataQueueReader = dataQueueReader;
-    }
-
-    public JWTManager getJWTManager() {
-        return this.jwtManager;
-    }
-
-    public void setJWTManager(final JWTManager jwtManager) {
-        this.jwtManager = jwtManager;
     }
 
     public Instance<SmeupSession> getSmeupSession() {

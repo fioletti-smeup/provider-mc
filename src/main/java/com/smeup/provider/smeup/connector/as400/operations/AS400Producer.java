@@ -14,6 +14,7 @@ import com.smeup.provider.model.FixedCredentials;
 import com.smeup.provider.model.SmeupSession;
 import com.smeup.provider.smeup.connector.as400.as400.qualifiers.OfUser;
 
+@RequestScoped
 public class AS400Producer {
 
     public static final String USER = "SMEUP_USER";
@@ -37,17 +38,8 @@ public class AS400Producer {
     @RequestScoped
     public AS400 provideForUser() {
 
-        AS400 as400;
-        try {
-            as400 = getAs400ConnectionPool().get().getConnection(
-                    getFixedCredentials().get().getServer(),
-                    getCredentials().get().getUser(),
-                    getCredentials().get().getPassword());
-        } catch (final ConnectionPoolException e) {
-
-            throw new CommunicationException(e);
-        }
-        return as400;
+        return new AS400(getFixedCredentials().get().getServer(),getCredentials().get().getUser(),
+                getCredentials().get().getPassword() );
     }
 
     @Produces
@@ -57,7 +49,8 @@ public class AS400Producer {
         AS400 as400;
         try {
 
-            final FixedCredentials fixedCredentials = getFixedCredentials().get();
+            final FixedCredentials fixedCredentials = getFixedCredentials()
+                    .get();
             as400 = getAs400ConnectionPool().get().getConnection(
                     fixedCredentials.getServer(), fixedCredentials.getUser(),
                     fixedCredentials.getPassword());

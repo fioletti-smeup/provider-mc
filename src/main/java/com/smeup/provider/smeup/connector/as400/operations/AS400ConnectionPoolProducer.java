@@ -3,7 +3,9 @@ package com.smeup.provider.smeup.connector.as400.operations;
 import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.RequestScoped;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 import javax.servlet.ServletContext;
@@ -95,12 +97,18 @@ public class AS400ConnectionPoolProducer {
                 .concat("_");
     }
 
-    @Produces
+    @Produces @RequestScoped
     public FixedCredentials getFixedCredentials() {
         return this.fixedCredentials;
     }
 
     public void setFixedCredentials(final FixedCredentials fixedCredentials) {
         this.fixedCredentials = fixedCredentials;
+    }
+
+    @PreDestroy
+    public void clean() {
+
+        getAs400ConnectionPool().close();
     }
 }

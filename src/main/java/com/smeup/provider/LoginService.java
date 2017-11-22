@@ -1,7 +1,11 @@
 package com.smeup.provider;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -10,12 +14,11 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import com.smeup.provider.model.Credentials;
-import com.smeup.provider.model.LoginResponse;
 import com.smeup.provider.model.SmeupSession;
 import com.smeup.provider.smeup.connector.as400.operations.LoginHandler;
 
-@Path("login")
-@Produces(MediaType.APPLICATION_JSON)
+@Path("AuthenticateService")
+@Produces(MediaType.APPLICATION_XML)
 @RequestScoped
 public class LoginService {
 
@@ -27,11 +30,14 @@ public class LoginService {
     @Inject
     private SmeupSession smeupSession;
 
+    @Inject
+    private JWTManager jwtManager;
+
     @POST
-    public Response login(@FormParam("user") final String user,
-            @FormParam("password") final String password,
+    public Response login(@FormParam("usr") final String user,
+            @FormParam("pwd") final String password,
             @FormParam("env") final String environment,
-            @FormParam("ccsid") final int ccsid) {
+            @FormParam("ccsid") @DefaultValue("1144") final int ccsid) {
 
         final Credentials credentials = new Credentials();
         credentials.setUser(user);
@@ -40,10 +46,21 @@ public class LoginService {
         setCredentials(credentials);
 
         getSmeupSession().setCCSID(ccsid);
-        final LoginResponse.Data data = getLoginHandler().login();
-        final LoginResponse login = new LoginResponse();
-        login.setData(data);
-        return Response.ok(login).build();
+
+        final String initXML = getLoginHandler().login();
+
+        if (null != initXML && !initXML.trim().isEmpty()) {
+
+            final Map<String, String> claims = new HashMap<>();
+            claims.put(Claims.SESSION_ID.name(),
+                    String.valueOf(this.smeupSession.getSessionId()));
+            claims.put(Claims.CCSID.name(),
+                    String.valueOf(this.smeupSession.getCCSID()));
+            final String jwt = getJWTManager().sign(claims);
+            return Response.ok(initXML).header("Authorization", "Bearer " + jwt)
+                    .build();
+        }
+        return Response.status(Response.Status.UNAUTHORIZED).build();
     }
 
     public LoginHandler getLoginHandler() {
@@ -70,5 +87,13 @@ public class LoginService {
 
     public void setSmeupSession(final SmeupSession smeupSession) {
         this.smeupSession = smeupSession;
+    }
+
+    public JWTManager getJWTManager() {
+        return this.jwtManager;
+    }
+
+    public void setJWTManager(final JWTManager jwtManager) {
+        this.jwtManager = jwtManager;
     }
 }

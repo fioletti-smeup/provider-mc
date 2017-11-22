@@ -1,7 +1,7 @@
 package com.smeup.provider;
 
 import javax.inject.Inject;
-import javax.ws.rs.POST;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
@@ -10,14 +10,14 @@ import javax.ws.rs.core.Response;
 import com.smeup.provider.smeup.connector.as400.LogoutHandler;
 
 @Secured
-@Path("logout")
+@Path("DisconnectService")
 @Produces(MediaType.APPLICATION_JSON)
 public class LogoutService {
 
     @Inject
     private LogoutHandler logoutHandler;
 
-    @POST
+    @DELETE
     public Response logout() {
 
         getLogoutHandler().logout();

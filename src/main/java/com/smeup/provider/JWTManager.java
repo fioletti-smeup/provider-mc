@@ -1,9 +1,10 @@
 package com.smeup.provider;
 
 import java.io.UnsupportedEncodingException;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Date;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTCreator.Builder;
@@ -26,24 +27,21 @@ public class JWTManager {
         } catch (IllegalArgumentException | UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }
-        final long iat = System.currentTimeMillis() / 1000L; // issued at claim
-        final long exp = iat + 14400L; // expires claim. In this case the token
+        final Instant now = Instant.now();
+        final Date iat = Date.from(now); // issued at claim
+        final Date exp = Date.from(now.plus(Duration.ofHours(4))); // expires claim. In this case the token
 
-        final Builder builder = JWT.create().withIssuedAt(new Date(iat))
-                .withExpiresAt(new Date(exp));
+        final Builder builder = JWT.create().withIssuedAt(iat).withExpiresAt(exp);
         privateClaims.forEach((k, v) -> builder.withClaim(k, v));
         return builder.sign(algorithm);
     }
 
-    public Map<String, Object> verify(final String token) {
+    public DecodedJWT verify(final String token) {
 
         try {
-            final Algorithm algorithm = Algorithm.HMAC256("secret");
-            final JWTVerifier verifier = JWT.require(algorithm)
-                    .withIssuer("auth0").build(); // Reusable verifier instance
-            final DecodedJWT jwt = verifier.verify(token);
-            return jwt.getClaims().entrySet().stream().collect(Collectors
-                    .toMap(e -> e.getKey(), e -> e.getValue().asString()));
+            final Algorithm algorithm = Algorithm.HMAC256(SECRET);
+            final JWTVerifier verifier = JWT.require(algorithm).build(); // Reusable verifier instance
+            return verifier.verify(token);
 
         } catch (final UnsupportedEncodingException
                 | JWTVerificationException exception) {
