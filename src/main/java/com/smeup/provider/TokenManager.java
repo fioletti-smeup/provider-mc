@@ -30,11 +30,14 @@ public class TokenManager implements Serializable {
 
     private Algorithm algorithm;
 
+    private JWTVerifier jwtVerifier;
+
     @PostConstruct
     public void init() {
 
         try {
             setAlgorithm(Algorithm.HMAC256(getSecret()));
+            setJWTVerifier(JWT.require(getAlgorithm()).build());
         } catch (IllegalArgumentException | UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }
@@ -55,8 +58,7 @@ public class TokenManager implements Serializable {
     public DecodedJWT verify(final String token) {
 
         try {
-            final JWTVerifier verifier = JWT.require(getAlgorithm()).build(); // Reusable verifier instance
-            return verifier.verify(token);
+            return getJWTVerifier().verify(token);
 
         } catch (final JWTVerificationException exception) {
 
@@ -78,5 +80,13 @@ public class TokenManager implements Serializable {
 
     public void setAlgorithm(final Algorithm algorithm) {
         this.algorithm = algorithm;
+    }
+
+    public JWTVerifier getJWTVerifier() {
+        return this.jwtVerifier;
+    }
+
+    public void setJWTVerifier(final JWTVerifier jwtVerifier) {
+        this.jwtVerifier = jwtVerifier;
     }
 }

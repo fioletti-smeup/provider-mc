@@ -32,7 +32,7 @@ Questo per rispettare i vincoli imposti ai nomi delle variabili di ambiente
 
 ###Esempio di login
 
-time curl -v -s -X POST -d 'usr=XXX&pwd=YYY4&env=ZZZ' http://localhost:8080/provider-mc/AuthenticateService
+time curl -v -s -X POST -d 'usr=XXX&pwd=YYY4&env=ZZZ' http://localhost:8080/provider-mc/AuthenticateService > /dev/null
 
 L'applicazione restituirà nel header "Authorization" il token nella forma:
 Bearer <JWT_TOKEN>
