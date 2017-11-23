@@ -15,14 +15,15 @@ import com.smeup.provider.mapper.NotFoundExceptionMapper;
 import com.smeup.provider.mapper.RuntimeExceptionMapper;
 import com.smeup.provider.mapper.XMLParseExceptionMapper;
 
-@ApplicationPath("")
+@ApplicationPath("api")
 public class ProviderApplication extends javax.ws.rs.core.Application {
 
     @Override
     public Set<Class<?>> getClasses() {
         final Set<Class<?>> resources = new HashSet<Class<?>>();
 
-        resources.add(io.swagger.jaxrs2.integration.resources.OpenApiResource.class);
+        resources.add(
+                io.swagger.jaxrs2.integration.resources.OpenApiResource.class);
 
         resources.add(AuthFilter.class);
         resources.add(LoginService.class);
