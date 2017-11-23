@@ -1,5 +1,8 @@
 package com.smeup.provider.conf;
 
+import java.time.Duration;
+import java.util.Optional;
+
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.RequestScoped;
@@ -10,6 +13,7 @@ import javax.servlet.ServletContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.smeup.provider.TokenConfig;
 import com.smeup.provider.model.FixedCredentials;
 import com.smeup.provider.smeup.connector.as400.operations.AS400ConnectionPoolProducer;
 
@@ -20,6 +24,13 @@ public class EnvironmentConfig implements Config {
 
     private static final Logger LOGGER = LoggerFactory
             .getLogger(AS400ConnectionPoolProducer.class);
+
+    public static final String USER = "SMEUP_USER";
+    public static final String PASSWORD = "SMEUP_PASSWORD";
+    public static final String SERVER = "SMEUP_SERVER";
+    public static final String SECRET = "SMEUP_SECRET";
+    // Minutes
+    public static final String TOKEN_DURATION = "SMEUP_TOKEN_DURATION";
 
     private @Inject ServletContext servletContext;
 
@@ -38,24 +49,45 @@ public class EnvironmentConfig implements Config {
     @Override
     public String getUser() {
 
-        return getPrefixedEnvironmentVariable(Config.USER);
+        return getPrefixedEnvironmentVariable(USER);
     }
 
     @Override
     public String getPassword() {
-        return getPrefixedEnvironmentVariable(Config.PASSWORD);
+        return getPrefixedEnvironmentVariable(PASSWORD);
     }
 
     @Override
     public String getServer() {
-        return getPrefixedEnvironmentVariable(Config.SERVER);
+        return getPrefixedEnvironmentVariable(SERVER);
     }
 
     @Override
     @Produces
-    @Secret
-    public String getSecret() {
-        return getPrefixedEnvironmentVariable(Config.SECRET);
+    @RequestScoped
+    public TokenConfig getTokenConfig() {
+
+        final TokenConfig tokenConfig = new TokenConfig();
+        tokenConfig.setSecret(getPrefixedEnvironmentVariable(SECRET));
+
+        getAsInteger(getPrefixedEnvironmentVariable(TOKEN_DURATION))
+        .ifPresent(v -> tokenConfig.setDuration(Duration.ofHours(v)));
+
+        return tokenConfig;
+    }
+
+    private Optional<Integer> getAsInteger(final String v) {
+
+        Optional<Integer> value;
+
+        try {
+            final Integer integer = Integer.valueOf(v);
+            value = Optional.of(integer);
+        } catch (final NumberFormatException formatException) {
+            LOGGER.warn("Token Duration not explicitly supplied");
+            value = Optional.empty();
+        }
+        return value;
     }
 
     private String getPrefixedEnvironmentVariable(final String varName) {
@@ -63,8 +95,7 @@ public class EnvironmentConfig implements Config {
         final String prefixed = getEnvironmentVariablePrefix() + varName;
         final String value = System.getenv(prefixed);
         LOGGER.info(String.format("Read variable: %s=%s", prefixed,
-                Config.PASSWORD.equals(varName) || Config.SECRET.equals(varName)
-                ? "***"
+                PASSWORD.equals(varName) || SECRET.equals(varName) ? "***"
                         : value));
         return value;
     }

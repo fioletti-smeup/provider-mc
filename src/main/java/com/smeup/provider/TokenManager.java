@@ -17,7 +17,6 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.smeup.provider.conf.Secret;
 
 @ApplicationScoped
 public class TokenManager implements Serializable {
@@ -25,8 +24,7 @@ public class TokenManager implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Inject
-    @Secret
-    private String secret;
+    private TokenConfig tokenConfig;
 
     private Algorithm algorithm;
 
@@ -47,7 +45,7 @@ public class TokenManager implements Serializable {
 
         final Instant now = Instant.now();
         final Date iat = Date.from(now); // issued at claim
-        final Date exp = Date.from(now.plus(Duration.ofHours(4))); // expires claim. In this case the token
+        final Date exp = Date.from(now.plus(getDuration())); // expires claim. In this case the token
 
         final Builder builder = JWT.create().withIssuedAt(iat)
                 .withExpiresAt(exp);
@@ -67,11 +65,11 @@ public class TokenManager implements Serializable {
     }
 
     public String getSecret() {
-        return this.secret;
+        return getTokenConfig().getSecret();
     }
 
-    public void setSecret(final String secret) {
-        this.secret = secret;
+    public Duration getDuration() {
+        return getTokenConfig().getDuration();
     }
 
     public Algorithm getAlgorithm() {
@@ -88,5 +86,13 @@ public class TokenManager implements Serializable {
 
     public void setJWTVerifier(final JWTVerifier jwtVerifier) {
         this.jwtVerifier = jwtVerifier;
+    }
+
+    public TokenConfig getTokenConfig() {
+        return this.tokenConfig;
+    }
+
+    public void setTokenConfig(final TokenConfig tokenConfig) {
+        this.tokenConfig = tokenConfig;
     }
 }

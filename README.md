@@ -22,6 +22,13 @@ SMEUP_SERVER
 
 SMEUP_SECRET
 
+### Optional Configuration
+
+La durata del token è impostata di default a 30 minuti.
+È possibile configurarla con la variable 
+
+<Root_di_contesto>_SMEUP_TOKEN_DURATION
+
 ##N.B.
 
 Se la root di contesto contiene il carattere "-", l'applicazione cercherà la corrispondente 
