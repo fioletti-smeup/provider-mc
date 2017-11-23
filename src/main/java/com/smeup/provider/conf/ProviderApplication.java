@@ -15,21 +15,25 @@ import com.smeup.provider.mapper.NotFoundExceptionMapper;
 import com.smeup.provider.mapper.RuntimeExceptionMapper;
 import com.smeup.provider.mapper.XMLParseExceptionMapper;
 
-@ApplicationPath("/")
+@ApplicationPath("")
 public class ProviderApplication extends javax.ws.rs.core.Application {
 
     @Override
     public Set<Class<?>> getClasses() {
-        final Set<Class<?>> s = new HashSet<Class<?>>();
-        s.add(AuthFilter.class);
-        s.add(LoginService.class);
-        s.add(LogoutService.class);
-        s.add(FunService.class);
-        s.add(CommunicationExceptionMapper.class);
-        s.add(FunParseExceptionMapper.class);
-        s.add(NotFoundExceptionMapper.class);
-        s.add(RuntimeExceptionMapper.class);
-        s.add(XMLParseExceptionMapper.class);
-        return s;
+        final Set<Class<?>> resources = new HashSet<Class<?>>();
+
+        resources.add(io.swagger.jaxrs2.integration.resources.OpenApiResource.class);
+
+        resources.add(AuthFilter.class);
+        resources.add(LoginService.class);
+        resources.add(LogoutService.class);
+        resources.add(FunService.class);
+        resources.add(CommunicationExceptionMapper.class);
+        resources.add(FunParseExceptionMapper.class);
+        resources.add(NotFoundExceptionMapper.class);
+        resources.add(RuntimeExceptionMapper.class);
+        resources.add(XMLParseExceptionMapper.class);
+
+        return resources;
     }
 }

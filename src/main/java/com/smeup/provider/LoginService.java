@@ -17,6 +17,8 @@ import com.smeup.provider.model.Credentials;
 import com.smeup.provider.model.SmeupSession;
 import com.smeup.provider.smeup.connector.as400.operations.LoginHandler;
 
+import io.swagger.oas.annotations.Operation;
+
 @Path("AuthenticateService")
 @Produces(MediaType.APPLICATION_XML)
 @RequestScoped
@@ -34,6 +36,7 @@ public class LoginService {
     private TokenManager jwtManager;
 
     @POST
+    @Operation
     public Response login(@FormParam("usr") final String user,
             @FormParam("pwd") final String password,
             @FormParam("env") final String environment,

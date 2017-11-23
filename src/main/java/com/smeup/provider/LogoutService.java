@@ -9,6 +9,8 @@ import javax.ws.rs.core.Response;
 
 import com.smeup.provider.smeup.connector.as400.LogoutHandler;
 
+import io.swagger.oas.annotations.Operation;
+
 @Secured
 @Path("DisconnectService")
 @Produces(MediaType.APPLICATION_JSON)
@@ -18,6 +20,7 @@ public class LogoutService {
     private LogoutHandler logoutHandler;
 
     @DELETE
+    @Operation
     public Response logout() {
 
         getLogoutHandler().logout();

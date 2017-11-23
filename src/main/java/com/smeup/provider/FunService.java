@@ -10,6 +10,8 @@ import javax.ws.rs.core.Response;
 
 import com.smeup.provider.smeup.connector.as400.operations.FunHandler;
 
+import io.swagger.oas.annotations.Operation;
+
 @Path("fun")
 @Secured
 @Produces(MediaType.APPLICATION_XML)
@@ -21,6 +23,7 @@ public class FunService {
     private FunHandler funHandler;
 
     @POST
+    @Operation
     public Response invoke(@FormParam(FUN_PARAM) final String fun) {
 
         return Response.ok(getFunHandler().executeFun(fun)).build();
