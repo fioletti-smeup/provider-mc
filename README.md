@@ -41,6 +41,6 @@ Bearer <JWT_TOKEN>
 
 time curl -X POST -H "Authorization: Bearer <JWT_TOKEN>" -d 'fun=F(EXD;B£SER_46;WRK.SXM) 1(MB;SCP_SET;WETEST_EXD) 2(;;CHGPWD)' http://localhost:8080/provider-mc/fun
 
-### Esempio di disconnession
+### Esempio di disconnessione
 
 time curl -X POST -H "Authorization: Bearer <JWT_TOKEN>"  http://localhost:8080/provider-mc/DisconnectService
