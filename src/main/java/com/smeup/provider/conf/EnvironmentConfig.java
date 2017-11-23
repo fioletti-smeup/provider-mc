@@ -71,7 +71,7 @@ public class EnvironmentConfig implements Config {
         tokenConfig.setSecret(getPrefixedEnvironmentVariable(SECRET));
 
         getAsInteger(getPrefixedEnvironmentVariable(TOKEN_DURATION))
-        .ifPresent(v -> tokenConfig.setDuration(Duration.ofHours(v)));
+        .ifPresent(v -> tokenConfig.setDuration(Duration.ofMinutes(v)));
 
         return tokenConfig;
     }
