@@ -3,6 +3,7 @@ package com.smeup.provider;
 import java.io.IOException;
 import java.util.Map;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.container.ContainerRequestContext;
@@ -16,10 +17,16 @@ import com.smeup.provider.model.SmeupSession;
 
 @Secured
 @Provider
+@ApplicationScoped
 public class AuthFilter implements ContainerRequestFilter {
 
     @Inject
     private SmeupSession smeupSession;
+
+    @Inject
+    private TokenManager tokenManager;
+
+    private static final String BEARER_ = "Bearer ";
 
     @Override
     public void filter(final ContainerRequestContext requestContext)
@@ -32,29 +39,28 @@ public class AuthFilter implements ContainerRequestFilter {
         // Check if the HTTP Authorization header is present and formatted
         // correctly
         if (authorizationHeader == null
-                || !authorizationHeader.startsWith("Bearer ")) {
+                || !authorizationHeader.startsWith(BEARER_)) {
             throw new NotAuthorizedException(
                     "Authorization header must be provided");
         }
 
         // Extract the token from the HTTP Authorization header
-        final String token = authorizationHeader.substring("Bearer ".length());
+        final String token = authorizationHeader.substring(BEARER_.length());
 
         try {
 
             // Validate the token
             validateToken(token);
 
-        } catch (final Exception e) {
+        } catch (final TokenVerificationException e) {
             requestContext.abortWith(
                     Response.status(Response.Status.UNAUTHORIZED).build());
         }
     }
 
-    private void validateToken(final String token) throws Exception {
+    private void validateToken(final String token) {
 
-        final JWTManager jwtManager = new JWTManager();
-        final Map<String, Claim> claims = jwtManager.verify(token).getClaims();
+        final Map<String, Claim> claims = getTokenManager().verify(token).getClaims();
         getSmeupSession()
         .setSessionId(claims.get(Claims.SESSION_ID.name()).asString());
         getSmeupSession().setCCSID(
@@ -67,5 +73,13 @@ public class AuthFilter implements ContainerRequestFilter {
 
     public void setSmeupSession(final SmeupSession smeupSession) {
         this.smeupSession = smeupSession;
+    }
+
+    public TokenManager getTokenManager() {
+        return this.tokenManager;
+    }
+
+    public void setTokenManager(final TokenManager tokenManager) {
+        this.tokenManager = tokenManager;
     }
 }

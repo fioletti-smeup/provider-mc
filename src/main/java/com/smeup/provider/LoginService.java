@@ -31,7 +31,7 @@ public class LoginService {
     private SmeupSession smeupSession;
 
     @Inject
-    private JWTManager jwtManager;
+    private TokenManager jwtManager;
 
     @POST
     public Response login(@FormParam("usr") final String user,
@@ -89,11 +89,11 @@ public class LoginService {
         this.smeupSession = smeupSession;
     }
 
-    public JWTManager getJWTManager() {
+    public TokenManager getJWTManager() {
         return this.jwtManager;
     }
 
-    public void setJWTManager(final JWTManager jwtManager) {
+    public void setJWTManager(final TokenManager jwtManager) {
         this.jwtManager = jwtManager;
     }
 }

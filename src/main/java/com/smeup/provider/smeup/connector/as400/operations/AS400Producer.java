@@ -17,10 +17,6 @@ import com.smeup.provider.smeup.connector.as400.as400.qualifiers.OfUser;
 @RequestScoped
 public class AS400Producer {
 
-    public static final String USER = "SMEUP_USER";
-    public static final String PASSWORD = "SMEUP_PASSWORD";
-    public static final String SERVER = "SMEUP_SERVER";
-
     @Inject
     private Instance<AS400ConnectionPool> as400ConnectionPool;
 
@@ -38,8 +34,9 @@ public class AS400Producer {
     @RequestScoped
     public AS400 provideForUser() {
 
-        return new AS400(getFixedCredentials().get().getServer(),getCredentials().get().getUser(),
-                getCredentials().get().getPassword() );
+        return new AS400(getFixedCredentials().get().getServer(),
+                getCredentials().get().getUser(),
+                getCredentials().get().getPassword());
     }
 
     @Produces

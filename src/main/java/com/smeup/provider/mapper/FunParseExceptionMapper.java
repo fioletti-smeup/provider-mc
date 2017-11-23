@@ -6,14 +6,14 @@ import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 
 import com.smeup.provider.model.Error;
-import com.smeup.provider.smeup.connector.as400.FunParserException;
+import com.smeup.provider.smeup.connector.as400.FunParseException;
 
 @Provider
 public class FunParseExceptionMapper
-implements ExceptionMapper<FunParserException> {
+implements ExceptionMapper<FunParseException> {
 
     @Override
-    public Response toResponse(final FunParserException e) {
+    public Response toResponse(final FunParseException e) {
 
         final Error error = new Error();
         error.setError(e.getMessage());

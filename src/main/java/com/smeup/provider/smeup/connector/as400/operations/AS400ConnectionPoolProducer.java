@@ -1,14 +1,10 @@
 package com.smeup.provider.smeup.connector.as400.operations;
 
-import java.util.logging.Logger;
-
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.context.RequestScoped;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
-import javax.servlet.ServletContext;
 
 import com.ibm.as400.access.AS400;
 import com.ibm.as400.access.AS400ConnectionPool;
@@ -18,22 +14,15 @@ import com.smeup.provider.model.FixedCredentials;
 @ApplicationScoped
 public class AS400ConnectionPoolProducer {
 
-    private static final Logger LOGGER = Logger
-            .getLogger(AS400ConnectionPoolProducer.class.getName());
-
-    private @Inject ServletContext servletContext;
-
     private AS400ConnectionPool as400ConnectionPool;
 
+    @Inject
     private FixedCredentials fixedCredentials;
 
     @PostConstruct
     public void init() {
 
-        final FixedCredentials fixedCredentials = new FixedCredentials();
-        fixedCredentials.setServer(getServer());
-        fixedCredentials.setUser(getUser());
-        fixedCredentials.setPassword(getPassword());
+        final FixedCredentials fixedCredentials = getFixedCredentials();
 
         final AS400ConnectionPool as400ConnectionPool = new AS400ConnectionPool();
         try {
@@ -41,7 +30,6 @@ public class AS400ConnectionPoolProducer {
                     fixedCredentials.getUser(), fixedCredentials.getPassword(),
                     AS400.DATAQUEUE, 4);
             setAs400ConnectionPool(as400ConnectionPool);
-            setFixedCredentials(fixedCredentials);
         } catch (final ConnectionPoolException e) {
 
             throw new CommunicationException(e);
@@ -59,56 +47,17 @@ public class AS400ConnectionPoolProducer {
         this.as400ConnectionPool = as400ConnectionPool;
     }
 
-    public String getUser() {
+    @PreDestroy
+    public void clean() {
 
-        return getPrefixedEnvironmentVariable(AS400Producer.USER);
+        getAs400ConnectionPool().close();
     }
 
-    public String getPassword() {
-        return getPrefixedEnvironmentVariable(AS400Producer.PASSWORD);
-    }
-
-    public String getServer() {
-        return getPrefixedEnvironmentVariable(AS400Producer.SERVER);
-    }
-
-    public ServletContext getServletContext() {
-        return this.servletContext;
-    }
-
-    public void setServletContext(final ServletContext servletContext) {
-        this.servletContext = servletContext;
-    }
-
-    private String getPrefixedEnvironmentVariable(final String varName) {
-
-        final String prefixed = getEnvironmentVariablePrefix() + varName;
-        final String value = System.getenv(prefixed);
-        LOGGER.info(String.format("Read variable: %s=%s", prefixed,
-                AS400Producer.PASSWORD.equals(varName) ? "***" : value));
-        return value;
-    }
-
-    private String getEnvironmentVariablePrefix() {
-
-        final String contextRoot = getServletContext().getContextPath();
-        return contextRoot.isEmpty() ? contextRoot
-                : contextRoot.replaceAll("/", "").replaceAll("-", "_")
-                .concat("_");
-    }
-
-    @Produces @RequestScoped
     public FixedCredentials getFixedCredentials() {
         return this.fixedCredentials;
     }
 
     public void setFixedCredentials(final FixedCredentials fixedCredentials) {
         this.fixedCredentials = fixedCredentials;
-    }
-
-    @PreDestroy
-    public void clean() {
-
-        getAs400ConnectionPool().close();
     }
 }

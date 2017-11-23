@@ -18,7 +18,7 @@ implements ExceptionMapper<CommunicationException> {
         final Error error = new Error();
         error.setError(e.getMessage());
 
-        return Response.status(Response.Status.BAD_REQUEST)
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                 .type(MediaType.APPLICATION_JSON).entity(error).build();
     }
 }
