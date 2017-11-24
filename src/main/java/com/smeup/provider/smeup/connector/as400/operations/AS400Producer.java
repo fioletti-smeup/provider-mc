@@ -8,7 +8,9 @@ import javax.inject.Inject;
 
 import com.ibm.as400.access.AS400;
 import com.ibm.as400.access.AS400ConnectionPool;
+import com.ibm.as400.access.AS400SecurityException;
 import com.ibm.as400.access.ConnectionPoolException;
+import com.smeup.provider.model.AuthorizationException;
 import com.smeup.provider.model.Credentials;
 import com.smeup.provider.model.FixedCredentials;
 import com.smeup.provider.smeup.connector.as400.as400.qualifiers.OfUser;
@@ -58,7 +60,11 @@ public class AS400Producer {
 
         } catch (final ConnectionPoolException e) {
 
-            throw new CommunicationException(e);
+            final Throwable cause = e.getCause();
+            if(null != cause && cause instanceof AS400SecurityException) {
+                throw new AuthorizationException(cause);
+            }
+            throw new CommunicationException(e.getCause());
         }
         return as400;
     }

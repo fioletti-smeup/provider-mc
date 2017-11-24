@@ -7,20 +7,21 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.RequestScoped;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
-import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
-import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.Provider;
 
 import com.auth0.jwt.interfaces.Claim;
 import com.google.common.net.HttpHeaders;
+import com.smeup.provider.model.AuthorizationException;
 import com.smeup.provider.model.SmeupSession;
 
 @Secured
 @Provider
 @ApplicationScoped
 public class AuthFilter implements ContainerRequestFilter {
+
+    private static final String NO_TOKEN_FOUND = "Authorization Token not found";
 
     private SmeupSession smeupSession = new SmeupSession();
 
@@ -33,35 +34,25 @@ public class AuthFilter implements ContainerRequestFilter {
     public void filter(final ContainerRequestContext requestContext)
             throws IOException {
 
-        // Get the HTTP Authorization header from the request
         final String authorizationHeader = requestContext
                 .getHeaderString(HttpHeaders.AUTHORIZATION);
 
-        // Check if the HTTP Authorization header is present and formatted
-        // correctly
         if (authorizationHeader == null
                 || !authorizationHeader.startsWith(BEARER_)) {
-            throw new NotAuthorizedException(
-                    "Authorization header must be provided");
+
+            throw new AuthorizationException(NO_TOKEN_FOUND);
         }
 
-        // Extract the token from the HTTP Authorization header
         final String token = authorizationHeader.substring(BEARER_.length());
 
-        try {
+        validateToken(token);
 
-            // Validate the token and set SmeupSession
-            validateToken(token);
-
-        } catch (final TokenVerificationException e) {
-            requestContext.abortWith(
-                    Response.status(Response.Status.UNAUTHORIZED).build());
-        }
     }
 
     private void validateToken(final String token) {
 
-        final Map<String, Claim> claims = getTokenManager().verify(token).getClaims();
+        final Map<String, Claim> claims = getTokenManager().verify(token)
+                .getClaims();
         final SmeupSession session = new SmeupSession();
         session.setSessionId(claims.get(Claims.SESSION_ID.name()).asString());
         getSmeupSession().setCCSID(

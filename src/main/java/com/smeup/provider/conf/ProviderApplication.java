@@ -10,10 +10,12 @@ import com.smeup.provider.FunService;
 import com.smeup.provider.LoginService;
 import com.smeup.provider.LogoutService;
 import com.smeup.provider.OpenAPI;
+import com.smeup.provider.mapper.AuthorizationExceptionMapper;
 import com.smeup.provider.mapper.CommunicationExceptionMapper;
 import com.smeup.provider.mapper.FunParseExceptionMapper;
 import com.smeup.provider.mapper.NotFoundExceptionMapper;
 import com.smeup.provider.mapper.RuntimeExceptionMapper;
+import com.smeup.provider.mapper.TokenVerificationExceptionMapper;
 import com.smeup.provider.mapper.XMLParseExceptionMapper;
 
 @ApplicationPath("api")
@@ -28,6 +30,8 @@ public class ProviderApplication extends javax.ws.rs.core.Application {
         resources.add(LoginService.class);
         resources.add(LogoutService.class);
         resources.add(FunService.class);
+        resources.add(TokenVerificationExceptionMapper.class);
+        resources.add(AuthorizationExceptionMapper.class);
         resources.add(CommunicationExceptionMapper.class);
         resources.add(FunParseExceptionMapper.class);
         resources.add(NotFoundExceptionMapper.class);
