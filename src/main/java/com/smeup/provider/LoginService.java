@@ -10,6 +10,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import com.smeup.provider.log.Logged;
 import com.smeup.provider.model.Credentials;
 import com.smeup.provider.model.SmeupSession;
 import com.smeup.provider.smeup.connector.as400.operations.LoginHandler;
@@ -17,6 +18,7 @@ import com.smeup.provider.smeup.connector.as400.operations.LoginHandler;
 @Path("AuthenticateService")
 @Produces(MediaType.APPLICATION_XML)
 @RequestScoped
+@Logged
 public class LoginService {
 
     @Inject

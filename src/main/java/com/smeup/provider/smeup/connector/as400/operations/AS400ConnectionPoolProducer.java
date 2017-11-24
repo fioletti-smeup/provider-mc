@@ -9,9 +9,11 @@ import javax.inject.Inject;
 import com.ibm.as400.access.AS400;
 import com.ibm.as400.access.AS400ConnectionPool;
 import com.ibm.as400.access.ConnectionPoolException;
+import com.smeup.provider.log.Logged;
 import com.smeup.provider.model.FixedCredentials;
 
 @ApplicationScoped
+@Logged
 public class AS400ConnectionPoolProducer {
 
     private AS400ConnectionPool as400ConnectionPool;

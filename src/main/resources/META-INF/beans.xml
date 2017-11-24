@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://xmlns.jcp.org/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	bean-discovery-mode="all"
+	xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/beans_1_1.xsd">
+	<alternatives>
+		<class>com.smeup.provider.conf.EnvironmentConfig</class>
+	</alternatives>
+	<interceptors>
+		<class>com.smeup.provider.log.LoggedInterceptor</class>
+	</interceptors>
+</beans>

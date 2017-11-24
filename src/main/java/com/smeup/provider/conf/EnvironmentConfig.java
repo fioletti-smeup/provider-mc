@@ -6,6 +6,7 @@ import java.util.Optional;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.RequestScoped;
+import javax.enterprise.inject.Alternative;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 import javax.servlet.ServletContext;
@@ -18,6 +19,7 @@ import com.smeup.provider.model.FixedCredentials;
 import com.smeup.provider.smeup.connector.as400.operations.AS400ConnectionPoolProducer;
 
 @ApplicationScoped
+@Alternative
 public class EnvironmentConfig implements Config {
 
     private static final long serialVersionUID = 1L;

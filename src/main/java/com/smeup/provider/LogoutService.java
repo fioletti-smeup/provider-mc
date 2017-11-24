@@ -7,11 +7,13 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import com.smeup.provider.log.Logged;
 import com.smeup.provider.smeup.connector.as400.LogoutHandler;
 
 @Secured
 @Path("DisconnectService")
 @Produces(MediaType.APPLICATION_JSON)
+@Logged
 public class LogoutService {
 
     @Inject

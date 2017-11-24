@@ -12,9 +12,11 @@ import com.ibm.as400.access.ErrorCompletingRequestException;
 import com.ibm.as400.access.IllegalObjectTypeException;
 import com.ibm.as400.access.ObjectDoesNotExistException;
 import com.ibm.as400.access.QSYSObjectPathName;
+import com.smeup.provider.log.Logged;
 import com.smeup.provider.model.SmeupSession;
 import com.smeup.provider.smeup.connector.as400.operations.CommunicationException;
 
+@Logged
 public class DataQueueWriter {
 
     public static final String QUEUE_LIB = "SMEUPUIDQ";

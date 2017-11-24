@@ -8,11 +8,13 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import com.smeup.provider.log.Logged;
 import com.smeup.provider.smeup.connector.as400.operations.FunHandler;
 
 @Path("fun")
 @Secured
 @Produces(MediaType.APPLICATION_XML)
+@Logged
 public class FunService {
 
     private static final String FUN_PARAM = "fun";

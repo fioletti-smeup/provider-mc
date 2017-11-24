@@ -17,12 +17,14 @@ import com.ibm.as400.access.AS400Text;
 import com.ibm.as400.access.ErrorCompletingRequestException;
 import com.ibm.as400.access.ObjectDoesNotExistException;
 import com.ibm.as400.access.ProgramCall;
+import com.smeup.provider.log.Logged;
 import com.smeup.provider.model.Credentials;
 import com.smeup.provider.model.SmeupSession;
 import com.smeup.provider.smeup.connector.as400.DataQueueReader;
 import com.smeup.provider.smeup.connector.as400.DataQueueWriter;
 import com.smeup.provider.smeup.connector.as400.as400.qualifiers.OfUser;
 
+@Logged
 public class LoginHandler {
 
     private static final String[] CREATION_PARAMS = {
