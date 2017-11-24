@@ -9,6 +9,7 @@ import com.smeup.provider.AuthFilter;
 import com.smeup.provider.FunService;
 import com.smeup.provider.LoginService;
 import com.smeup.provider.LogoutService;
+import com.smeup.provider.OpenAPI;
 import com.smeup.provider.mapper.CommunicationExceptionMapper;
 import com.smeup.provider.mapper.FunParseExceptionMapper;
 import com.smeup.provider.mapper.NotFoundExceptionMapper;
@@ -22,6 +23,7 @@ public class ProviderApplication extends javax.ws.rs.core.Application {
     public Set<Class<?>> getClasses() {
         final Set<Class<?>> resources = new HashSet<Class<?>>();
 
+        resources.add(OpenAPI.class);
         resources.add(AuthFilter.class);
         resources.add(LoginService.class);
         resources.add(LogoutService.class);

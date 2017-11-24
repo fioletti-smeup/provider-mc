@@ -33,7 +33,6 @@ public class LoginService {
     @Inject
     private TokenManager jwtManager;
 
-
     @POST
     public Response login( @FormParam("usr") final String user,
             @FormParam("pwd") final String password,

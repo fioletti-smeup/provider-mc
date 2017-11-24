@@ -4,7 +4,7 @@ info:
   description: Smeup Provider API (only for fun)
   version: 0.0.1
 servers:
-  - url: api
+  - url: ${contextPath}/api/
 paths:
   /fun:
     post:
@@ -36,6 +36,9 @@ paths:
                   type: string
                 env:
                   type: string
+                ccsid:
+                  type: integer
+                  default: 1144
               required:
                 - usr
                 - pwd
