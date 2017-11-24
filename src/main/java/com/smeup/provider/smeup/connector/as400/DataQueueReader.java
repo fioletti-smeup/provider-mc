@@ -15,7 +15,7 @@ import com.smeup.provider.smeup.connector.as400.operations.CommunicationExceptio
 @Logged
 public class DataQueueReader {
 
-    private static final int TIMEOUT = 30; // Seconds
+    private static final int TIMEOUT = 300; // Seconds
 
     private static final int HEADER_LENGTH = 73;
 

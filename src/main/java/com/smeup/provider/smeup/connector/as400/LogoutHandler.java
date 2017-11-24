@@ -13,10 +13,12 @@ import com.ibm.as400.access.ErrorCompletingRequestException;
 import com.ibm.as400.access.ObjectDoesNotExistException;
 import com.ibm.as400.access.ProgramCall;
 import com.ibm.as400.access.ProgramParameter;
+import com.smeup.provider.log.Logged;
 import com.smeup.provider.model.SmeupSession;
 import com.smeup.provider.smeup.connector.as400.operations.CommunicationException;
 import com.smeup.provider.smeup.connector.as400.operations.ProgramCallHandler;
 
+@Logged
 public class LogoutHandler {
 
     @Inject
