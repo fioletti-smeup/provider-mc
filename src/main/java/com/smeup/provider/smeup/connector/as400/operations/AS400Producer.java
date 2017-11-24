@@ -11,7 +11,6 @@ import com.ibm.as400.access.AS400ConnectionPool;
 import com.ibm.as400.access.ConnectionPoolException;
 import com.smeup.provider.model.Credentials;
 import com.smeup.provider.model.FixedCredentials;
-import com.smeup.provider.model.SmeupSession;
 import com.smeup.provider.smeup.connector.as400.as400.qualifiers.OfUser;
 
 @RequestScoped
@@ -19,9 +18,6 @@ public class AS400Producer {
 
     @Inject
     private Instance<AS400ConnectionPool> as400ConnectionPool;
-
-    @Inject
-    private Instance<SmeupSession> smeupSession;
 
     @Inject
     private Instance<Credentials> credentials;
@@ -34,38 +30,37 @@ public class AS400Producer {
     @RequestScoped
     public AS400 provideForUser() {
 
-        return new AS400(getFixedCredentials().get().getServer(),
-                getCredentials().get().getUser(),
-                getCredentials().get().getPassword());
+        final FixedCredentials fixedCredentials = getFixedCredentials().get();
+        final Credentials credentials = getCredentials().get();
+
+        return retrieveAS400(fixedCredentials.getServer(),
+                credentials.getUser(), credentials.getPassword());
     }
 
     @Produces
     @RequestScoped
     public AS400 provide() {
 
+        final FixedCredentials fixedCredentials = getFixedCredentials().get();
+
+        return retrieveAS400(fixedCredentials.getServer(),
+                fixedCredentials.getUser(), fixedCredentials.getPassword());
+    }
+
+    private AS400 retrieveAS400(final String server, final String user,
+            final String password) {
+
         AS400 as400;
         try {
 
-            final FixedCredentials fixedCredentials = getFixedCredentials()
-                    .get();
-            as400 = getAs400ConnectionPool().get().getConnection(
-                    fixedCredentials.getServer(), fixedCredentials.getUser(),
-                    fixedCredentials.getPassword());
+            as400 = getAs400ConnectionPool().get().getConnection(server, user,
+                    password);
 
         } catch (final ConnectionPoolException e) {
 
             throw new CommunicationException(e);
         }
         return as400;
-
-    }
-
-    public Instance<SmeupSession> getSmeupSession() {
-        return this.smeupSession;
-    }
-
-    public void setSmeupSession(final Instance<SmeupSession> smeupSession) {
-        this.smeupSession = smeupSession;
     }
 
     public Instance<AS400ConnectionPool> getAs400ConnectionPool() {
@@ -84,7 +79,7 @@ public class AS400Producer {
 
     void closeOfUserAS400(@Disposes @OfUser final AS400 as400) {
 
-        as400.disconnectAllServices();
+        getAs400ConnectionPool().get().returnConnectionToPool(as400);
     }
 
     public Instance<Credentials> getCredentials() {
@@ -103,5 +98,4 @@ public class AS400Producer {
             final Instance<FixedCredentials> fixedCredentials) {
         this.fixedCredentials = fixedCredentials;
     }
-
 }

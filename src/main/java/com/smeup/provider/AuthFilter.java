@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.Map;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.RequestScoped;
+import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.container.ContainerRequestContext;
@@ -20,8 +22,7 @@ import com.smeup.provider.model.SmeupSession;
 @ApplicationScoped
 public class AuthFilter implements ContainerRequestFilter {
 
-    @Inject
-    private SmeupSession smeupSession;
+    private SmeupSession smeupSession = new SmeupSession();
 
     @Inject
     private TokenManager tokenManager;
@@ -49,7 +50,7 @@ public class AuthFilter implements ContainerRequestFilter {
 
         try {
 
-            // Validate the token
+            // Validate the token and set SmeupSession
             validateToken(token);
 
         } catch (final TokenVerificationException e) {
@@ -61,12 +62,15 @@ public class AuthFilter implements ContainerRequestFilter {
     private void validateToken(final String token) {
 
         final Map<String, Claim> claims = getTokenManager().verify(token).getClaims();
-        getSmeupSession()
-        .setSessionId(claims.get(Claims.SESSION_ID.name()).asString());
+        final SmeupSession session = new SmeupSession();
+        session.setSessionId(claims.get(Claims.SESSION_ID.name()).asString());
         getSmeupSession().setCCSID(
                 Integer.valueOf(claims.get(Claims.CCSID.name()).asString()));
+        setSmeupSession(session);
     }
 
+    @Produces
+    @RequestScoped
     public SmeupSession getSmeupSession() {
         return this.smeupSession;
     }

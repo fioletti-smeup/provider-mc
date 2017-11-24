@@ -70,7 +70,7 @@ public class LoginHandler {
     private DataQueueReader dataQueueReader;
 
     @Inject
-    private Instance<SmeupSession> smeupSession;
+    private SmeupSession smeupSession;
 
     @Inject
     @OfUser
@@ -94,7 +94,7 @@ public class LoginHandler {
             throw new CommunicationException(e);
         }
         if (exitStatus) {
-            final SmeupSession smeupSession = getSmeupSession().get();
+            final SmeupSession smeupSession = getSmeupSession();
             sessionId = new AS400Text(CREATION_PARAMS[8].length(),
                     smeupSession.getCCSID())
                     .toObject(
@@ -213,11 +213,11 @@ public class LoginHandler {
         this.dataQueueReader = dataQueueReader;
     }
 
-    public Instance<SmeupSession> getSmeupSession() {
+    public SmeupSession getSmeupSession() {
         return this.smeupSession;
     }
 
-    public void setSmeupSession(final Instance<SmeupSession> smeupSession) {
+    public void setSmeupSession(final SmeupSession smeupSession) {
         this.smeupSession = smeupSession;
     }
 

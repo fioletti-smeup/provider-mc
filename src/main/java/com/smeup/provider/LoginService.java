@@ -1,8 +1,5 @@
 package com.smeup.provider;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.ws.rs.DefaultValue;
@@ -31,19 +28,15 @@ public class LoginService {
     private SmeupSession smeupSession;
 
     @Inject
-    private TokenManager jwtManager;
+    private TokenManager tokenManager;
 
     @POST
-    public Response login( @FormParam("usr") final String user,
+    public Response login(@FormParam("usr") final String user,
             @FormParam("pwd") final String password,
             @FormParam("env") final String environment,
             @FormParam("ccsid") @DefaultValue("1144") final int ccsid) {
 
-        final Credentials credentials = new Credentials();
-        credentials.setUser(user);
-        credentials.setPassword(password);
-        credentials.setEnvironment(environment);
-        setCredentials(credentials);
+        setCredentials(user, password, environment);
 
         getSmeupSession().setCCSID(ccsid);
 
@@ -51,16 +44,20 @@ public class LoginService {
 
         if (null != initXML && !initXML.trim().isEmpty()) {
 
-            final Map<String, String> claims = new HashMap<>();
-            claims.put(Claims.SESSION_ID.name(),
-                    String.valueOf(this.smeupSession.getSessionId()));
-            claims.put(Claims.CCSID.name(),
-                    String.valueOf(this.smeupSession.getCCSID()));
-            final String jwt = getJWTManager().sign(claims);
-            return Response.ok(initXML).header("Authorization", "Bearer " + jwt)
-                    .build();
+            return Response.ok(initXML).header("Authorization",
+                    "Bearer " + getTokenManager().sign()).build();
         }
         return Response.status(Response.Status.UNAUTHORIZED).build();
+    }
+
+    private void setCredentials(final String user, final String password,
+            final String environment) {
+
+        final Credentials credentials = new Credentials();
+        credentials.setUser(user);
+        credentials.setPassword(password);
+        credentials.setEnvironment(environment);
+        setCredentials(credentials);
     }
 
     public LoginHandler getLoginHandler() {
@@ -89,11 +86,11 @@ public class LoginService {
         this.smeupSession = smeupSession;
     }
 
-    public TokenManager getJWTManager() {
-        return this.jwtManager;
+    public TokenManager getTokenManager() {
+        return this.tokenManager;
     }
 
-    public void setJWTManager(final TokenManager jwtManager) {
-        this.jwtManager = jwtManager;
+    public void setTokenManager(final TokenManager tokenManager) {
+        this.tokenManager = tokenManager;
     }
 }

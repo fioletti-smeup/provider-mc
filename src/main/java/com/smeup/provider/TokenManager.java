@@ -5,6 +5,7 @@ import java.io.UnsupportedEncodingException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
@@ -17,6 +18,7 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.smeup.provider.model.SmeupSession;
 
 @ApplicationScoped
 public class TokenManager implements Serializable {
@@ -30,6 +32,9 @@ public class TokenManager implements Serializable {
 
     private JWTVerifier jwtVerifier;
 
+    @Inject
+    private SmeupSession smeupSession;
+
     @PostConstruct
     public void init() {
 
@@ -41,7 +46,18 @@ public class TokenManager implements Serializable {
         }
     }
 
-    public String sign(final Map<String, String> privateClaims) {
+    public String sign() {
+
+        final Map<String, String> claims = new HashMap<>();
+        claims.put(Claims.SESSION_ID.name(),
+                String.valueOf(getSmeupSession().getSessionId()));
+        claims.put(Claims.CCSID.name(),
+                String.valueOf(getSmeupSession().getCCSID()));
+        final String jwt = sign(claims);
+        return jwt;
+    }
+
+    private String sign(final Map<String, String> privateClaims) {
 
         final Instant now = Instant.now();
         final Date iat = Date.from(now); // issued at claim
@@ -94,5 +110,13 @@ public class TokenManager implements Serializable {
 
     public void setTokenConfig(final TokenConfig tokenConfig) {
         this.tokenConfig = tokenConfig;
+    }
+
+    public SmeupSession getSmeupSession() {
+        return this.smeupSession;
+    }
+
+    public void setSmeupSession(final SmeupSession smeupSession) {
+        this.smeupSession = smeupSession;
     }
 }
