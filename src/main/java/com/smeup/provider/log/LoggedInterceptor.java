@@ -3,6 +3,7 @@ package com.smeup.provider.log;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 
+import javax.interceptor.AroundConstruct;
 import javax.interceptor.AroundInvoke;
 import javax.interceptor.Interceptor;
 import javax.interceptor.InvocationContext;
@@ -18,17 +19,25 @@ public class LoggedInterceptor implements Serializable {
     private static final Logger LOGGER = LoggerFactory
             .getLogger(LoggedInterceptor.class);
 
+    @AroundConstruct
+    public void logConstruction(final InvocationContext ctx) throws Exception {
+
+        final String className = ctx.getConstructor().getDeclaringClass().getName();
+        LOGGER.info("Constructing class: " + className);
+        ctx.proceed();
+    }
+
     @AroundInvoke
-    public Object logMethodEntry(final InvocationContext invocationContext)
+    public Object logMethodEntry(final InvocationContext ctx)
             throws Exception {
 
-        final Method method = invocationContext.getMethod();
+        final Method method = ctx.getMethod();
         final String methodName = "#" + method.getDeclaringClass() + "."
                 + method.getName();
         LOGGER.info("Entering method: " + methodName);
 
         final long time = System.currentTimeMillis();
-        final Object object = invocationContext.proceed();
+        final Object object = ctx.proceed();
 
         LOGGER.info("Time elapsed executing method " + methodName + " "
                 + (System.currentTimeMillis() - time) + "ms");
