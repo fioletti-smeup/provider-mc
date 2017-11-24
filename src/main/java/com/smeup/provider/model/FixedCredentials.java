@@ -1,8 +1,8 @@
 package com.smeup.provider.model;
 
-import com.smeup.provider.smeup.connector.as400.as400.qualifiers.DoNotProduceAutomatically;
+import javax.enterprise.inject.Any;
 
-@DoNotProduceAutomatically
+@Any
 public class FixedCredentials {
 
     private String server;

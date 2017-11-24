@@ -3,9 +3,9 @@ package com.smeup.provider;
 import java.io.Serializable;
 import java.time.Duration;
 
-import com.smeup.provider.smeup.connector.as400.as400.qualifiers.DoNotProduceAutomatically;
+import javax.enterprise.inject.Any;
 
-@DoNotProduceAutomatically
+@Any
 public class TokenConfig implements Serializable {
 
     private static final long serialVersionUID = 1L;

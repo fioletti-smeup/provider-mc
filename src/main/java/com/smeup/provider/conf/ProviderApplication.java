@@ -22,9 +22,6 @@ public class ProviderApplication extends javax.ws.rs.core.Application {
     public Set<Class<?>> getClasses() {
         final Set<Class<?>> resources = new HashSet<Class<?>>();
 
-        resources.add(
-                io.swagger.jaxrs2.integration.resources.OpenApiResource.class);
-
         resources.add(AuthFilter.class);
         resources.add(LoginService.class);
         resources.add(LogoutService.class);
