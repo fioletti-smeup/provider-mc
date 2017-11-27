@@ -59,7 +59,7 @@ time curl -X POST -H "Authorization: Bearer <JWT_TOKEN>"  http://localhost:8080/
 ### OpenApi
 
 All'url http://localhost:8080/provider-mc/openapi.yaml si trovano le specifiche openapi.
-Usando ad esempio il software (swagger-ui)[https://swagger.io/swagger-ui/] si possono provare i diversi servizi.
+Usando ad esempio il software [swagger-ui](https://swagger.io/swagger-ui/) si possono provare i diversi servizi.
 
 
  
