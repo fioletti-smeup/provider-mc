@@ -9,6 +9,7 @@ import javax.ws.rs.core.Response;
 
 import com.smeup.provider.log.Logged;
 import com.smeup.provider.smeup.connector.as400.LogoutHandler;
+import com.smeup.provider.token.Secured;
 
 @Secured
 @Path("DisconnectService")

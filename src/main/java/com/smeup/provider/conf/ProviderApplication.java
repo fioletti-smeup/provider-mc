@@ -5,11 +5,11 @@ import java.util.Set;
 
 import javax.ws.rs.ApplicationPath;
 
-import com.smeup.provider.AuthFilter;
 import com.smeup.provider.FunService;
 import com.smeup.provider.LoginService;
 import com.smeup.provider.LogoutService;
 import com.smeup.provider.OpenAPI;
+import com.smeup.provider.filter.AuthFilter;
 import com.smeup.provider.mapper.AuthorizationExceptionMapper;
 import com.smeup.provider.mapper.CommunicationExceptionMapper;
 import com.smeup.provider.mapper.FunParseExceptionMapper;

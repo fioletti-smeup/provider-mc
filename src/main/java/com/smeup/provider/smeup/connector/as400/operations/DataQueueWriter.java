@@ -1,4 +1,4 @@
-package com.smeup.provider.smeup.connector.as400;
+package com.smeup.provider.smeup.connector.as400.operations;
 
 import java.io.IOException;
 
@@ -13,8 +13,10 @@ import com.ibm.as400.access.IllegalObjectTypeException;
 import com.ibm.as400.access.ObjectDoesNotExistException;
 import com.ibm.as400.access.QSYSObjectPathName;
 import com.smeup.provider.log.Logged;
+import com.smeup.provider.model.CommunicationException;
 import com.smeup.provider.model.SmeupSession;
-import com.smeup.provider.smeup.connector.as400.operations.CommunicationException;
+import com.smeup.provider.smeup.connector.as400.FUNParser;
+import com.smeup.provider.smeup.connector.as400.InputCalculator;
 
 @Logged
 public class DataQueueWriter {

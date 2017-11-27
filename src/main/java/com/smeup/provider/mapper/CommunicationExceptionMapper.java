@@ -5,8 +5,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 
+import com.smeup.provider.model.CommunicationException;
 import com.smeup.provider.model.Error;
-import com.smeup.provider.smeup.connector.as400.operations.CommunicationException;
 
 @Provider
 public class CommunicationExceptionMapper

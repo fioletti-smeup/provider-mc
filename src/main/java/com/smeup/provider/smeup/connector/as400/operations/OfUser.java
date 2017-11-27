@@ -1,4 +1,4 @@
-package com.smeup.provider.smeup.connector.as400.as400.qualifiers;
+package com.smeup.provider.smeup.connector.as400.operations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.smeup.provider.smeup.connector.as400.operations;
+package com.smeup.provider.model;
 
 /**
  *

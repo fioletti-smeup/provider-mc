@@ -1,9 +1,13 @@
 package com.smeup.provider.model;
 
+import java.io.Serializable;
+
 import javax.enterprise.inject.Any;
 
 @Any
-public class FixedCredentials {
+public class FixedCredentials implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private String server;
     private String user;

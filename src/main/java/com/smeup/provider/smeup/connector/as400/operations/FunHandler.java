@@ -2,9 +2,9 @@ package com.smeup.provider.smeup.connector.as400.operations;
 
 import javax.inject.Inject;
 
-import com.smeup.provider.smeup.connector.as400.DataQueueReader;
-import com.smeup.provider.smeup.connector.as400.DataQueueWriter;
+import com.smeup.provider.log.Logged;
 
+@Logged
 public class FunHandler {
 
     @Inject

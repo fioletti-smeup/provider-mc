@@ -62,5 +62,7 @@ All'url http://localhost:8080/provider-mc/openapi.yaml si trovano le specifiche 
 Usando ad esempio il software [swagger-ui](https://swagger.io/swagger-ui/) si possono provare i diversi servizi.
 
 
- 
+### oauth 2
+
+TODO 
 

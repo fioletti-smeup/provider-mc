@@ -18,7 +18,7 @@ Scadenza token come segnalare
 
 Caduta code su as400 come gestire dal punto di vista degli errori
 
-Aggiungere costante API_PATH
+_Aggiungere costante API_PATH --- Fatto
 
 Configurazione più dettagliata di AS400ConnectionPool
 
@@ -29,3 +29,5 @@ SmupClass
 Verificare se si possono migliore InputDataStructure...
 
 Capire perché alcune schede non funzionano
+
+OAuth 2

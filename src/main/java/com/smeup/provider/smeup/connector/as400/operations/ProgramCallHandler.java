@@ -10,9 +10,12 @@ import com.ibm.as400.access.AS400Text;
 import com.ibm.as400.access.ProgramCall;
 import com.ibm.as400.access.ProgramParameter;
 import com.ibm.as400.access.QSYSObjectPathName;
+import com.smeup.provider.log.Logged;
+import com.smeup.provider.model.CommunicationException;
 import com.smeup.provider.model.SmeupSession;
 
 @RequestScoped
+@Logged
 public class ProgramCallHandler {
 
     public static final String DEFAULT_LIBRARIES = "*LIBL";

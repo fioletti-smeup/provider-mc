@@ -1,4 +1,4 @@
-package com.smeup.provider.smeup.connector.as400;
+package com.smeup.provider.smeup.connector.as400.operations;
 
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
@@ -9,8 +9,8 @@ import com.ibm.as400.access.DataQueue;
 import com.ibm.as400.access.DataQueueEntry;
 import com.ibm.as400.access.QSYSObjectPathName;
 import com.smeup.provider.log.Logged;
+import com.smeup.provider.model.CommunicationException;
 import com.smeup.provider.model.SmeupSession;
-import com.smeup.provider.smeup.connector.as400.operations.CommunicationException;
 
 @Logged
 public class DataQueueReader {

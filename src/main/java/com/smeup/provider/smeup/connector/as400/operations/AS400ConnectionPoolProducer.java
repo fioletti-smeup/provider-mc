@@ -10,6 +10,7 @@ import com.ibm.as400.access.AS400;
 import com.ibm.as400.access.AS400ConnectionPool;
 import com.ibm.as400.access.ConnectionPoolException;
 import com.smeup.provider.log.Logged;
+import com.smeup.provider.model.CommunicationException;
 import com.smeup.provider.model.FixedCredentials;
 
 @ApplicationScoped

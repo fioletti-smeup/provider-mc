@@ -1,4 +1,4 @@
-package com.smeup.provider;
+package com.smeup.provider.conf;
 
 import java.io.Serializable;
 import java.time.Duration;

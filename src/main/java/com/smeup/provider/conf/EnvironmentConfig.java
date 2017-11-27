@@ -14,7 +14,6 @@ import javax.servlet.ServletContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.smeup.provider.TokenConfig;
 import com.smeup.provider.model.FixedCredentials;
 import com.smeup.provider.smeup.connector.as400.operations.AS400ConnectionPoolProducer;
 

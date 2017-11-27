@@ -21,6 +21,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 
 import com.smeup.provider.conf.ProviderApplication;
+import com.smeup.provider.log.Logged;
 
 import freemarker.template.Configuration;
 import freemarker.template.Template;
@@ -29,6 +30,7 @@ import freemarker.template.TemplateException;
 @ApplicationScoped
 @Path("openapi.yaml")
 @Produces(MediaType.TEXT_PLAIN)
+@Logged
 public class OpenAPI {
 
     private Template template;
@@ -48,7 +50,8 @@ public class OpenAPI {
             template = configuration.getTemplate("openapi.yaml");
             setTemplate(template);
         } catch (final IOException e) {
-            e.printStackTrace();
+
+            throw new Error(e);
         }
 
     }
@@ -66,9 +69,11 @@ public class OpenAPI {
                         new OutputStreamWriter(os));
                 try {
                     final Map<String, Object> root = new HashMap<>();
-                    final String contextPath = getServletContext().getContextPath();
+                    final String contextPath = getServletContext()
+                            .getContextPath();
                     final String apiContext = ProviderApplication.API_CONTEXT;
-                    final String apitURL = String.join("/", contextPath, apiContext);
+                    final String apitURL = apiContext.isEmpty() ? contextPath
+                            : String.join("/", contextPath, apiContext);
                     root.put("apiURL", apitURL);
                     template.process(root, writer);
                 } catch (final TemplateException e) {

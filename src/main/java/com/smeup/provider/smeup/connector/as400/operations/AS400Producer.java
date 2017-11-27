@@ -12,9 +12,9 @@ import com.ibm.as400.access.AS400SecurityException;
 import com.ibm.as400.access.ConnectionPoolException;
 import com.smeup.provider.log.Logged;
 import com.smeup.provider.model.AuthorizationException;
+import com.smeup.provider.model.CommunicationException;
 import com.smeup.provider.model.Credentials;
 import com.smeup.provider.model.FixedCredentials;
-import com.smeup.provider.smeup.connector.as400.as400.qualifiers.OfUser;
 
 @RequestScoped
 @Logged

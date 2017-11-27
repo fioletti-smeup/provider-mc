@@ -5,8 +5,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 
-import com.smeup.provider.TokenVerificationException;
 import com.smeup.provider.model.Error;
+import com.smeup.provider.token.TokenVerificationException;
 
 @Provider
 public class TokenVerificationExceptionMapper

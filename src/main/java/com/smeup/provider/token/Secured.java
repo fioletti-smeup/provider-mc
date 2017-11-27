@@ -1,4 +1,4 @@
-package com.smeup.provider;
+package com.smeup.provider.token;
 
 import javax.ws.rs.NameBinding;
 

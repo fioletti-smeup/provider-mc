@@ -1,4 +1,4 @@
-package com.smeup.provider;
+package com.smeup.provider.filter;
 
 import java.io.IOException;
 import java.util.Map;
@@ -15,6 +15,9 @@ import com.auth0.jwt.interfaces.Claim;
 import com.google.common.net.HttpHeaders;
 import com.smeup.provider.model.AuthorizationException;
 import com.smeup.provider.model.SmeupSession;
+import com.smeup.provider.token.Claims;
+import com.smeup.provider.token.Secured;
+import com.smeup.provider.token.TokenManager;
 
 @Secured
 @Provider
@@ -53,11 +56,9 @@ public class AuthFilter implements ContainerRequestFilter {
 
         final Map<String, Claim> claims = getTokenManager().verify(token)
                 .getClaims();
-        final SmeupSession session = new SmeupSession();
-        session.setSessionId(claims.get(Claims.SESSION_ID.name()).asString());
+        getSmeupSession().setSessionId(claims.get(Claims.SESSION_ID.name()).asString());
         getSmeupSession().setCCSID(
                 Integer.valueOf(claims.get(Claims.CCSID.name()).asString()));
-        setSmeupSession(session);
     }
 
     @Produces
