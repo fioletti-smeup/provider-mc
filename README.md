@@ -40,7 +40,7 @@ Questo per rispettare i vincoli imposti ai nomi delle variabili di ambiente
 ### Esempio di login
 
 ```
-time curl -v -s -X POST -d 'usr=XXX&pwd=YYY4&env=ZZZ' http://localhost:8080/provider-mc/api/AuthenticateService > /dev/null
+time curl -v -s -X POST -d 'usr=XXX&pwd=YYY4&env=ZZZ' http://localhost:8080/provider-mc/AuthenticateService > /dev/null
 ```
 L'applicazione restituirà nel header "Authorization" il token nella forma:
 Bearer <JWT_TOKEN>
@@ -48,10 +48,19 @@ Bearer <JWT_TOKEN>
 ### Esempio di fun
 
 ```
-time curl -X POST -H "Authorization: Bearer <JWT_TOKEN>" -d 'fun=F(EXD;B£SER_46;WRK.SXM) 1(MB;SCP_SET;WETEST_EXD) 2(;;CHGPWD)' http://localhost:8080/provider-mc/api/fun
+time curl -X POST -H "Authorization: Bearer <JWT_TOKEN>" -d 'fun=F(EXD;B£SER_46;WRK.SXM) 1(MB;SCP_SET;WETEST_EXD) 2(;;CHGPWD)' http://localhost:8080/provider-mc/fun
 ```
 ### Esempio di disconnessione
 
 ```
-time curl -X POST -H "Authorization: Bearer <JWT_TOKEN>"  http://localhost:8080/api/provider-mc/DisconnectService
+time curl -X POST -H "Authorization: Bearer <JWT_TOKEN>"  http://localhost:8080/provider-mc/DisconnectService
 ```
+
+### OpenApi
+
+All'url http://localhost:8080/provider-mc/openapi.yaml si trovano le specifiche openapi.
+Usando ad esempio il software [[swagger-ui|https://swagger.io/swagger-ui/]] si possono provare i diversi servizi.
+
+
+ 
+

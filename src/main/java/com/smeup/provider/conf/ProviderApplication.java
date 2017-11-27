@@ -18,8 +18,10 @@ import com.smeup.provider.mapper.RuntimeExceptionMapper;
 import com.smeup.provider.mapper.TokenVerificationExceptionMapper;
 import com.smeup.provider.mapper.XMLParseExceptionMapper;
 
-@ApplicationPath("api")
+@ApplicationPath(ProviderApplication.API_CONTEXT)
 public class ProviderApplication extends javax.ws.rs.core.Application {
+
+    public static final String API_CONTEXT = "";
 
     @Override
     public Set<Class<?>> getClasses() {

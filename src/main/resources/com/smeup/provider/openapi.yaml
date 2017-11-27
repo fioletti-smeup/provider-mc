@@ -4,7 +4,7 @@ info:
   description: Smeup Provider API (only for fun)
   version: 0.0.1
 servers:
-  - url: ${contextPath}/api/
+  - url: ${apiURL}
 paths:
   /fun:
     post:

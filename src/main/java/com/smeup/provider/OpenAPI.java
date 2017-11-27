@@ -20,6 +20,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 
+import com.smeup.provider.conf.ProviderApplication;
+
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
@@ -35,9 +37,10 @@ public class OpenAPI {
     private ServletContext servletContext;
 
     @PostConstruct
-    public void init()  {
+    public void init() {
 
-        final Configuration configuration = new Configuration(Configuration.VERSION_2_3_23);
+        final Configuration configuration = new Configuration(
+                Configuration.VERSION_2_3_23);
         configuration.setClassForTemplateLoading(this.getClass(), "");
 
         Template template;
@@ -57,20 +60,23 @@ public class OpenAPI {
 
         final StreamingOutput stream = new StreamingOutput() {
             @Override
-            public void write(final OutputStream os) throws IOException,
-            WebApplicationException {
-                final Writer writer = new BufferedWriter(new OutputStreamWriter(os));
+            public void write(final OutputStream os)
+                    throws IOException, WebApplicationException {
+                final Writer writer = new BufferedWriter(
+                        new OutputStreamWriter(os));
                 try {
-                    final Map<String, Object> root= new HashMap<>();
-                    root.put("contextPath", getServletContext().getContextPath());
+                    final Map<String, Object> root = new HashMap<>();
+                    final String contextPath = getServletContext().getContextPath();
+                    final String apiContext = ProviderApplication.API_CONTEXT;
+                    final String apitURL = String.join("/", contextPath, apiContext);
+                    root.put("apiURL", apitURL);
                     template.process(root, writer);
                 } catch (final TemplateException e) {
-                    //TODO
-                    e.printStackTrace();
+
+                    throw new Error(e);
                 }
             }
         };
-
 
         return Response.ok(stream).build();
     }
