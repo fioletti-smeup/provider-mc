@@ -3,22 +3,43 @@
  */
 package com.smeup.provider.smeup.connector.as400;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.RequestScoped;
+import javax.enterprise.inject.Produces;
+import javax.inject.Inject;
+
 import com.ibm.as400.access.AS400Text;
 import com.ibm.as400.access.CharacterFieldDescription;
 import com.ibm.as400.access.RecordFormat;
+import com.smeup.provider.model.SmeupSession;
 
 /**
  * @author gianluca
  *
  */
+
+@ApplicationScoped
 public class DataStructurProvider {
 
-    private int CCSID = 0;
+    private Map<Integer, RecordFormat> cache = new HashMap<>();
 
-    public RecordFormat createRecordFormatForInQueue() {
+    @Inject
+    private SmeupSession smeupSession;
+
+    @Produces @RequestScoped
+    public RecordFormat getRecordFormatForInQueue() {
+
+        final Integer ccsid = getSmeupSession().getCCSID();
+
+        if (getCache().containsKey(ccsid)) {
+
+            return getCache().get(ccsid);
+        }
 
         final RecordFormat recordFormat = new RecordFormat();
-        final int ccsid = getCCSID();
 
         recordFormat.addFieldDescription(new CharacterFieldDescription( // 0
                 new AS400Text(10, ccsid), "TIPO"));
@@ -108,14 +129,25 @@ public class DataStructurProvider {
         recordFormat.addFieldDescription(new CharacterFieldDescription(
                 new AS400Text(25000, ccsid), "INPUT"));
 
+        getCache().put(ccsid, recordFormat);
+
         return recordFormat;
     }
 
-    public int getCCSID() {
-        return this.CCSID;
+    public SmeupSession getSmeupSession() {
+        return this.smeupSession;
     }
 
-    public void setCCSID(final int cCSID) {
-        this.CCSID = cCSID;
+    public void setSmeupSession(final SmeupSession smeupSession) {
+        this.smeupSession = smeupSession;
     }
+
+    public Map<Integer, RecordFormat> getCache() {
+        return this.cache;
+    }
+
+    public void setCache(final Map<Integer, RecordFormat> cache) {
+        this.cache = cache;
+    }
+
 }

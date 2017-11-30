@@ -2,6 +2,7 @@ package com.smeup.provider.smeup.connector.as400.operations;
 
 import java.io.IOException;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 
@@ -19,11 +20,15 @@ import com.smeup.provider.smeup.connector.as400.FUNParser;
 import com.smeup.provider.smeup.connector.as400.InputCalculator;
 
 @Logged
+@ApplicationScoped
 public class DataQueueWriter {
 
     public static final String QUEUE_LIB = "SMEUPUIDQ";
 
     private static final String IN_QUEUE_PREFIX = "ECTS";
+
+    @Inject
+    private InputCalculator inputCalculator;
 
     @Inject
     private Instance<AS400> as400;
@@ -33,10 +38,10 @@ public class DataQueueWriter {
 
     public void writeToQueue(final String fun) throws CommunicationException {
 
-        byte[] bs;
         try {
-            bs = getInputCalculator().toByte(new FUNParser().parse(fun));
-            createDataQueue(IN_QUEUE_PREFIX).write(bs);
+            final String content = getInputCalculator()
+                    .toDataQueueEntryString(new FUNParser().parse(fun));
+            createDataQueue(IN_QUEUE_PREFIX).write(content.trim());
         } catch (IOException | AS400SecurityException
                 | ErrorCompletingRequestException | IllegalObjectTypeException
                 | InterruptedException | ObjectDoesNotExistException e) {
@@ -54,13 +59,6 @@ public class DataQueueWriter {
         return dataQueue;
     }
 
-    private InputCalculator getInputCalculator() {
-
-        final InputCalculator inputCalculator = new InputCalculator();
-        inputCalculator.setCcsid(getSmeupSession().getCCSID());
-        return inputCalculator;
-    }
-
     public Instance<AS400> getAS400() {
         return this.as400;
     }
@@ -75,5 +73,13 @@ public class DataQueueWriter {
 
     public void setSmeupSession(final SmeupSession smeupSession) {
         this.smeupSession = smeupSession;
+    }
+
+    public InputCalculator getInputCalculator() {
+        return this.inputCalculator;
+    }
+
+    public void setInputCalculator(final InputCalculator inputCalculator) {
+        this.inputCalculator = inputCalculator;
     }
 }

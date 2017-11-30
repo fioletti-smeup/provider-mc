@@ -13,6 +13,7 @@ import javax.ws.rs.ext.Provider;
 
 import com.auth0.jwt.interfaces.Claim;
 import com.google.common.net.HttpHeaders;
+import com.smeup.provider.log.Logged;
 import com.smeup.provider.model.AuthorizationException;
 import com.smeup.provider.model.SmeupSession;
 import com.smeup.provider.token.Claims;
@@ -22,6 +23,7 @@ import com.smeup.provider.token.TokenManager;
 @Secured
 @Provider
 @ApplicationScoped
+@Logged
 public class AuthFilter implements ContainerRequestFilter {
 
     private static final String NO_TOKEN_FOUND = "Authorization Token not found";

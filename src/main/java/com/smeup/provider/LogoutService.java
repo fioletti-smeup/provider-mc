@@ -1,5 +1,6 @@
 package com.smeup.provider;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.Path;
@@ -15,6 +16,7 @@ import com.smeup.provider.token.Secured;
 @Path("DisconnectService")
 @Produces(MediaType.APPLICATION_JSON)
 @Logged
+@ApplicationScoped
 public class LogoutService {
 
     @Inject

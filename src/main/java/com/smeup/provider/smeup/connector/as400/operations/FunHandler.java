@@ -1,8 +1,16 @@
 package com.smeup.provider.smeup.connector.as400.operations;
 
+import java.io.IOException;
+import java.io.Writer;
+
 import javax.inject.Inject;
 
+import com.ibm.as400.access.AS400SecurityException;
+import com.ibm.as400.access.ErrorCompletingRequestException;
+import com.ibm.as400.access.IllegalObjectTypeException;
+import com.ibm.as400.access.ObjectDoesNotExistException;
 import com.smeup.provider.log.Logged;
+import com.smeup.provider.model.CommunicationException;
 
 @Logged
 public class FunHandler {
@@ -13,12 +21,18 @@ public class FunHandler {
     @Inject
     private DataQueueReader dataQueueReader;
 
-    public String executeFun(final String fun) {
+    public void executeFun(final String fun, final Writer writer) {
 
-        String xml = null;
         getDataQueueWriter().writeToQueue(fun);
-        xml = getDataQueueReader().readFromQueue();
-        return xml;
+
+        try {
+            getDataQueueReader().readFromQueue(writer);
+
+        } catch (AS400SecurityException | ErrorCompletingRequestException
+                | IOException | IllegalObjectTypeException
+                | InterruptedException | ObjectDoesNotExistException e) {
+            throw new CommunicationException(e);
+        }
     }
 
     public DataQueueWriter getDataQueueWriter() {

@@ -1,6 +1,7 @@
 package com.smeup.provider.smeup.connector.as400.operations;
 
 import java.io.IOException;
+import java.io.Writer;
 import java.text.MessageFormat;
 import java.util.Map;
 import java.util.Optional;
@@ -15,6 +16,7 @@ import com.ibm.as400.access.AS400;
 import com.ibm.as400.access.AS400SecurityException;
 import com.ibm.as400.access.AS400Text;
 import com.ibm.as400.access.ErrorCompletingRequestException;
+import com.ibm.as400.access.IllegalObjectTypeException;
 import com.ibm.as400.access.ObjectDoesNotExistException;
 import com.ibm.as400.access.ProgramCall;
 import com.smeup.provider.log.Logged;
@@ -79,10 +81,9 @@ public class LoginHandler {
     @Inject
     private Instance<Credentials> credentials;
 
-    public String login() {
+    public void login(final Writer writer) {
 
         String sessionId = null;
-        String initXML;
         final ProgramCall call = getProgramCallHandler()
                 .createCall(getAs400OfUser().get(), CREATION_PARAMS);
         boolean exitStatus = false;
@@ -105,27 +106,30 @@ public class LoginHandler {
                     getCredentials().get().getEnvironment(),
                     smeupSession.getCCSID());
 
-            initXML = null;
             if (environmentCode.isPresent()) {
 
-                initXML = changeEnvironment(environmentCode.get());
+                changeEnvironment(environmentCode.get(), writer);
             }
 
         } else {
             throw new CommunicationException(
                     "Program call to: " + call.getProgram() + " failed");
         }
-
-        return initXML;
     }
 
-    private String changeEnvironment(final Integer environment)
-            throws CommunicationException {
+    private void changeEnvironment(final Integer environment,
+            final Writer writer) throws CommunicationException {
 
         final String fun = MessageFormat.format(CHG_ENV_FUNCTION_STRING,
                 String.format("%04d", environment));
         getDataQueueWriter().writeToQueue(fun);
-        return getDataQueueReader().readFromQueue();
+        try {
+            getDataQueueReader().readFromQueue(writer);
+        } catch (AS400SecurityException | ErrorCompletingRequestException
+                | IOException | IllegalObjectTypeException
+                | InterruptedException | ObjectDoesNotExistException e) {
+            throw new CommunicationException(e);
+        }
     }
 
     private Optional<Integer> resolveCode(final String env, final int ccsid) {

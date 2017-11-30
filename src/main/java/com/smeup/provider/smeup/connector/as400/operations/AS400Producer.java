@@ -1,5 +1,6 @@
 package com.smeup.provider.smeup.connector.as400.operations;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.RequestScoped;
 import javax.enterprise.inject.Disposes;
 import javax.enterprise.inject.Instance;
@@ -16,7 +17,7 @@ import com.smeup.provider.model.CommunicationException;
 import com.smeup.provider.model.Credentials;
 import com.smeup.provider.model.FixedCredentials;
 
-@RequestScoped
+@ApplicationScoped
 @Logged
 public class AS400Producer {
 

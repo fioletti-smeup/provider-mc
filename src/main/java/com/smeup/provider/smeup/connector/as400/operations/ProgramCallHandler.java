@@ -2,7 +2,7 @@ package com.smeup.provider.smeup.connector.as400.operations;
 
 import java.beans.PropertyVetoException;
 
-import javax.enterprise.context.RequestScoped;
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import com.ibm.as400.access.AS400;
@@ -14,7 +14,7 @@ import com.smeup.provider.log.Logged;
 import com.smeup.provider.model.CommunicationException;
 import com.smeup.provider.model.SmeupSession;
 
-@RequestScoped
+@ApplicationScoped
 @Logged
 public class ProgramCallHandler {
 

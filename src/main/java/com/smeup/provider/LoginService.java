@@ -1,5 +1,8 @@
 package com.smeup.provider;
 
+import java.io.StringWriter;
+
+import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.ws.rs.DefaultValue;
@@ -18,7 +21,7 @@ import com.smeup.provider.token.TokenManager;
 
 @Path("AuthenticateService")
 @Produces(MediaType.APPLICATION_XML)
-@RequestScoped
+@ApplicationScoped
 @Logged
 public class LoginService {
 
@@ -42,8 +45,12 @@ public class LoginService {
         setCredentials(user, password, environment);
 
         getSmeupSession().setCCSID(ccsid);
+        final StringWriter writer = new StringWriter();
 
-        final String initXML = getLoginHandler().login();
+        getLoginHandler().login(writer);
+
+        writer.flush();
+        final String initXML = writer.toString();
 
         if (null != initXML && !initXML.trim().isEmpty()) {
 
