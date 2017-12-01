@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.Arrays;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 
@@ -21,6 +22,7 @@ import com.smeup.provider.model.CommunicationException;
 import com.smeup.provider.model.SmeupSession;
 
 @Logged
+@ApplicationScoped
 public class DataQueueReader {
 
     private static final int TIMEOUT = 300; // Seconds

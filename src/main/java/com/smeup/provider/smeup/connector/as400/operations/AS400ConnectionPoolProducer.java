@@ -29,6 +29,7 @@ public class AS400ConnectionPoolProducer {
 
         final AS400ConnectionPool as400ConnectionPool = new AS400ConnectionPool();
         try {
+            as400ConnectionPool.setThreadUsed(false);
             as400ConnectionPool.fill(fixedCredentials.getServer(),
                     fixedCredentials.getUser(), fixedCredentials.getPassword(),
                     AS400.DATAQUEUE, 4);

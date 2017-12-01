@@ -40,7 +40,7 @@ public class DataQueueWriter {
 
         try {
             createDataQueue(IN_QUEUE_PREFIX).write(getInputCalculator()
-                    .toDataQueueEntry(new FUNParser().parse(fun)));
+                    .toDataQueueEntryAsString(new FUNParser().parse(fun)));
 
         } catch (IOException | AS400SecurityException
                 | ErrorCompletingRequestException | IllegalObjectTypeException

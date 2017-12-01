@@ -9,9 +9,11 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.ibm.as400.access.CharConverter;
 import com.ibm.as400.access.Record;
 import com.ibm.as400.access.RecordFormat;
 import com.smeup.provider.log.Logged;
+import com.smeup.provider.model.SmeupSession;
 
 /**
  * @author gianluca
@@ -27,6 +29,9 @@ public class InputCalculator {
 
     @Inject
     private RecordFormat recordFormat;
+
+    @Inject
+    private SmeupSession smeupSession;
 
     private static String truncate(final int size, final String v) {
 
@@ -83,19 +88,11 @@ public class InputCalculator {
         return r;
     }
 
-    public byte[] toDataQueueEntry(final FUN fun) throws CharConversionException, UnsupportedEncodingException {
+    public String toDataQueueEntryAsString(final FUN fun)
+            throws CharConversionException, UnsupportedEncodingException {
 
-        final byte space = getRecordFormat().getFieldDescription(0)
-                .getDataType().toBytes("")[0];
-        final Record record = createRecord(fun);
-        final byte[] input = record.getContents();
-        int i = input.length;
-        while (i-- > 0 && input[i] == space) {
-        }
-
-        final byte[] output = new byte[i + 1];
-        System.arraycopy(input, 0, output, 0, i + 1);
-        return output;
+        return new CharConverter(getSmeupSession().getCCSID())
+                .byteArrayToString(createRecord(fun).getContents()).trim();
     }
 
     public RecordFormat getRecordFormat() {
@@ -104,5 +101,13 @@ public class InputCalculator {
 
     public void setRecordFormat(final RecordFormat recordFormat) {
         this.recordFormat = recordFormat;
+    }
+
+    public SmeupSession getSmeupSession() {
+        return this.smeupSession;
+    }
+
+    public void setSmeupSession(final SmeupSession smeupSession) {
+        this.smeupSession = smeupSession;
     }
 }
