@@ -22,25 +22,25 @@ public class LoggedInterceptor implements Serializable {
     @AroundConstruct
     public void logConstruction(final InvocationContext ctx) throws Exception {
 
-        final String className = ctx.getConstructor().getDeclaringClass().getName();
-        LOGGER.info("Constructing class: " + className);
+        final String className = ctx.getConstructor().getDeclaringClass()
+                .getName();
+        LOGGER.info("Constructing class: {}", className);
         ctx.proceed();
     }
 
     @AroundInvoke
-    public Object logMethodEntry(final InvocationContext ctx)
-            throws Exception {
+    public Object logMethodEntry(final InvocationContext ctx) throws Exception {
 
         final Method method = ctx.getMethod();
         final String methodName = "#" + method.getDeclaringClass() + "."
                 + method.getName();
-        LOGGER.info("Entering method: " + methodName);
+        LOGGER.info("Entering method: {}", methodName);
 
         final long time = System.currentTimeMillis();
         final Object object = ctx.proceed();
 
-        LOGGER.info("Time elapsed executing method " + methodName + " "
-                + (System.currentTimeMillis() - time) + "ms");
+        LOGGER.info("Time elapsed executing method {}: {}ms", methodName,
+                (System.currentTimeMillis() - time));
         return object;
     }
 }

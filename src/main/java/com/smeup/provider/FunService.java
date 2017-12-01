@@ -42,7 +42,7 @@ public class FunService {
     @POST
     public Response invoke(@FormParam(FUN_PARAM) final String fun) {
 
-        LOGGER.info("Fun called: " + fun);
+        LOGGER.info("Fun called: {}", fun);
         final StreamingOutput stream = new StreamingOutput() {
             @Override
             public void write(final OutputStream os)

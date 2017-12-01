@@ -16,7 +16,6 @@ import com.ibm.as400.access.AS400;
 import com.ibm.as400.access.AS400SecurityException;
 import com.ibm.as400.access.AS400Text;
 import com.ibm.as400.access.ErrorCompletingRequestException;
-import com.ibm.as400.access.IllegalObjectTypeException;
 import com.ibm.as400.access.ObjectDoesNotExistException;
 import com.ibm.as400.access.ProgramCall;
 import com.smeup.provider.log.Logged;
@@ -123,13 +122,7 @@ public class LoginHandler {
         final String fun = MessageFormat.format(CHG_ENV_FUNCTION_STRING,
                 String.format("%04d", environment));
         getDataQueueWriter().writeToQueue(fun);
-        try {
-            getDataQueueReader().readFromQueue(writer);
-        } catch (AS400SecurityException | ErrorCompletingRequestException
-                | IOException | IllegalObjectTypeException
-                | InterruptedException | ObjectDoesNotExistException e) {
-            throw new CommunicationException(e);
-        }
+        getDataQueueReader().readFromQueue(writer);
     }
 
     private Optional<Integer> resolveCode(final String env, final int ccsid) {

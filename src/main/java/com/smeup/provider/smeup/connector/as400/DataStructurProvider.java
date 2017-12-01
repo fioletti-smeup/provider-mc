@@ -3,9 +3,6 @@
  */
 package com.smeup.provider.smeup.connector.as400;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.RequestScoped;
 import javax.enterprise.inject.Produces;
@@ -24,8 +21,6 @@ import com.smeup.provider.model.SmeupSession;
 @ApplicationScoped
 public class DataStructurProvider {
 
-    private Map<Integer, RecordFormat> cache = new HashMap<>();
-
     @Inject
     private SmeupSession smeupSession;
 
@@ -33,11 +28,6 @@ public class DataStructurProvider {
     public RecordFormat getRecordFormatForInQueue() {
 
         final Integer ccsid = getSmeupSession().getCCSID();
-
-        if (getCache().containsKey(ccsid)) {
-
-            return getCache().get(ccsid);
-        }
 
         final RecordFormat recordFormat = new RecordFormat();
 
@@ -129,8 +119,6 @@ public class DataStructurProvider {
         recordFormat.addFieldDescription(new CharacterFieldDescription(
                 new AS400Text(25000, ccsid), "INPUT"));
 
-        getCache().put(ccsid, recordFormat);
-
         return recordFormat;
     }
 
@@ -141,13 +129,4 @@ public class DataStructurProvider {
     public void setSmeupSession(final SmeupSession smeupSession) {
         this.smeupSession = smeupSession;
     }
-
-    public Map<Integer, RecordFormat> getCache() {
-        return this.cache;
-    }
-
-    public void setCache(final Map<Integer, RecordFormat> cache) {
-        this.cache = cache;
-    }
-
 }

@@ -95,9 +95,9 @@ public class EnvironmentConfig implements Config {
 
         final String prefixed = getEnvironmentVariablePrefix() + varName;
         final String value = System.getenv(prefixed);
-        LOGGER.info(String.format("Read variable: %s=%s", prefixed,
+        LOGGER.info("Read variable: {}={}", prefixed,
                 PASSWORD.equals(varName) || SECRET.equals(varName) ? "***"
-                        : value));
+                        : value);
         return value;
     }
 
@@ -127,5 +127,4 @@ public class EnvironmentConfig implements Config {
     public void setFixedCredentials(final FixedCredentials fixedCredentials) {
         this.fixedCredentials = fixedCredentials;
     }
-
 }

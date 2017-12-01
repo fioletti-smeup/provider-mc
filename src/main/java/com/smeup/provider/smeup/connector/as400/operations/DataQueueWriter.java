@@ -39,9 +39,9 @@ public class DataQueueWriter {
     public void writeToQueue(final String fun) throws CommunicationException {
 
         try {
-            final String content = getInputCalculator()
-                    .toDataQueueEntryString(new FUNParser().parse(fun));
-            createDataQueue(IN_QUEUE_PREFIX).write(content.trim());
+            createDataQueue(IN_QUEUE_PREFIX).write(getInputCalculator()
+                    .toDataQueueEntry(new FUNParser().parse(fun)));
+
         } catch (IOException | AS400SecurityException
                 | ErrorCompletingRequestException | IllegalObjectTypeException
                 | InterruptedException | ObjectDoesNotExistException e) {

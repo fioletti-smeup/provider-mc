@@ -41,7 +41,18 @@ public class DataQueueReader {
     @Inject
     private SmeupSession smeupSession;
 
-    public void readFromQueue(final Writer writer)
+    public void readFromQueue(final Writer writer) {
+
+        try {
+            _readFromQueue(writer);
+        } catch (AS400SecurityException | ErrorCompletingRequestException
+                | IOException | IllegalObjectTypeException
+                | InterruptedException | ObjectDoesNotExistException e) {
+            throw new CommunicationException(e);
+        }
+    }
+
+    private void _readFromQueue(final Writer writer)
             throws AS400SecurityException, ErrorCompletingRequestException,
             IOException, IllegalObjectTypeException, InterruptedException,
             ObjectDoesNotExistException {
@@ -68,10 +79,14 @@ public class DataQueueReader {
             }
 
             writer.write(cc.byteArrayToString(
-                    Arrays.copyOfRange(data, HEADER_LENGTH, data.length)).trim());
+                    Arrays.copyOfRange(data, HEADER_LENGTH, data.length))
+                    .trim());
 
-            if (END_STRING.equalsIgnoreCase(cc.byteArrayToString(Arrays
-                    .copyOfRange(data, END_STRING_POSITION, HEADER_LENGTH)).trim())) {
+            if (END_STRING
+                    .equalsIgnoreCase(cc
+                            .byteArrayToString(Arrays.copyOfRange(data,
+                                    END_STRING_POSITION, HEADER_LENGTH))
+                            .trim())) {
                 break;
             }
         }

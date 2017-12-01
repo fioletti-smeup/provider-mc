@@ -2,17 +2,16 @@ package com.smeup.provider.smeup.connector.as400;
 
 import java.io.CharConversionException;
 import java.io.UnsupportedEncodingException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import com.ibm.as400.access.CharConverter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.ibm.as400.access.Record;
 import com.ibm.as400.access.RecordFormat;
 import com.smeup.provider.log.Logged;
-import com.smeup.provider.model.SmeupSession;
 
 /**
  * @author gianluca
@@ -23,23 +22,20 @@ import com.smeup.provider.model.SmeupSession;
 @ApplicationScoped
 public class InputCalculator {
 
-    private static final Logger LOGGER = Logger
-            .getLogger(InputCalculator.class.getName());
+    private static final Logger LOGGER = LoggerFactory
+            .getLogger(InputCalculator.class);
 
     @Inject
     private RecordFormat recordFormat;
 
-    @Inject
-    private SmeupSession smeupSession;
-
     private static String truncate(final int size, final String v) {
 
-        String r = null;
-        if (null != v) {
-            final int realSize = v.length();
-            r = v.substring(0, Math.min(size, realSize));
+        if (null != v && v.length() > size) {
+
+            LOGGER.warn("Value \"{}\" truncated to length {}", v, size);
+            return v.substring(0, size);
         }
-        return r;
+        return v;
     }
 
     private Record createRecord(final FUN fun) {
@@ -48,50 +44,58 @@ public class InputCalculator {
         r.setField("TIPO", "JS");
 
         r.setField("MESSAGGIO", fun.getMessaggio());
-        LOGGER.log(Level.FINE, "MESSAGGIO: {0}", fun.getMessaggio());
+        LOGGER.trace("MESSAGGIO: {}", fun.getMessaggio());
 
         r.setField("PROGRAMMA", fun.getProgramma());
-        LOGGER.log(Level.FINE, "PROGRAMMA: {0}", fun.getProgramma());
+        LOGGER.trace("PROGRAMMA: {}", fun.getProgramma());
 
         r.setField("FUNZIONE", fun.getFunzione());
-        LOGGER.log(Level.FINE, "FUNZIONE: {0}", fun.getFunzione());
+        LOGGER.trace("FUNZIONE: {}", fun.getFunzione());
 
         r.setField("METODO", fun.getMetodo());
-        LOGGER.log(Level.FINE, "METODO: {0}", fun.getMetodo());
+        LOGGER.trace("METODO: {}", fun.getMetodo());
 
         for (int i = 0; i < fun.getSmeupObjs().length; i++) {
 
-            // TODO loggare i troncamenti
             r.setField("TIPO_" + (i + 1),
                     truncate(2, fun.getSmeupObjs(i).getTipo()));
-            LOGGER.log(Level.FINE, "TIPO_" + (i + 1) + ": {0}",
+            LOGGER.trace("TIPO_" + (i + 1) + ": {}",
                     fun.getSmeupObjs(i).getTipo());
             r.setField("PARAMETRO_" + (i + 1),
                     truncate(10, fun.getSmeupObjs(i).getParametro()));
-            LOGGER.log(Level.FINE, "PARAMETRO_" + (i + 1) + ": {0}",
+            LOGGER.trace("PARAMETRO_" + (i + 1) + ": {}",
                     fun.getSmeupObjs(i).getParametro());
             r.setField("CODICE_" + (i + 1),
                     truncate(15, fun.getSmeupObjs(i).getCodice()));
-            LOGGER.log(Level.FINE, "CODICE_" + (i + 1) + ": {0}",
+            LOGGER.trace("CODICE_" + (i + 1) + ": {}",
                     fun.getSmeupObjs(i).getCodice());
         }
         r.setField("PARAMETRO", fun.getParametro());
-        LOGGER.log(Level.FINE, "PARAM: {0}", fun.getParametro());
+        LOGGER.trace("PARAM: {}", fun.getParametro());
 
         r.setField("SETUP_SETUP", fun.getSetupSetup());
-        LOGGER.log(Level.FINE, "SETUP_SETUP: {0}", fun.getSetupSetup());
+        LOGGER.trace("SETUP_SETUP: {}", fun.getSetupSetup());
 
         r.setField("MSG_CONT", "FINE");
 
         r.setField("INPUT", fun.getInput());
-        LOGGER.log(Level.FINE, "INPUT: {0}", fun.getInput());
+        LOGGER.trace("INPUT: {}", fun.getInput());
         return r;
     }
 
-    public String toDataQueueEntryString(final FUN fun)
-            throws CharConversionException, UnsupportedEncodingException {
+    public byte[] toDataQueueEntry(final FUN fun) throws CharConversionException, UnsupportedEncodingException {
 
-        return new CharConverter(this.smeupSession.getCCSID()).byteArrayToString(createRecord(fun).getContents());
+        final byte space = getRecordFormat().getFieldDescription(0)
+                .getDataType().toBytes("")[0];
+        final Record record = createRecord(fun);
+        final byte[] input = record.getContents();
+        int i = input.length;
+        while (i-- > 0 && input[i] == space) {
+        }
+
+        final byte[] output = new byte[i + 1];
+        System.arraycopy(input, 0, output, 0, i + 1);
+        return output;
     }
 
     public RecordFormat getRecordFormat() {
