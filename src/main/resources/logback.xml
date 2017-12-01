@@ -1,0 +1,18 @@
+<configuration scan="true" scanPeriod="10 seconds">
+
+	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>
+				%d{HH:mm:ss.SSS} [%thread] %-5level %logger{72} - %msg%n
+			</pattern>
+		</encoder>
+	</appender>
+
+	<logger name="com.smeup.provider.log.LoggedInterceptor" level="INFO" />
+
+	<!-- turn OFF all logging (children can override) -->
+	<root level="OFF">
+		<appender-ref ref="STDOUT" />
+	</root>
+
+</configuration>
