@@ -1,4 +1,4 @@
-<configuration scan="true" scanPeriod="10 seconds">
+<configuration scan="true">
 
 	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
 		<encoder>
