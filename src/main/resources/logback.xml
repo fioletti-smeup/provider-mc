@@ -1,18 +1,36 @@
-<configuration scan="true">
+<configuration scan="true" scanPeriod="60 seconds">
 
-	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+	<contextName>${contextPath}</contextName>
+	
+	<appender name="FILE"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>../logs/${HOSTNAME}-${contextPath}.log</file>
+
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<!-- daily rollover -->
+			<fileNamePattern>../logs/${HOSTNAME}-${contextPath}.%d{yyyy-MM-dd}.log
+			</fileNamePattern>
+			<!-- keep 30 days' worth of history capped at 1GB total size -->
+			<maxHistory>30</maxHistory>
+			<totalSizeCap>1GB</totalSizeCap>
+		</rollingPolicy>
 		<encoder>
-			<pattern>
-				%d{HH:mm:ss.SSS} [%thread] %-5level %logger{72} - %msg%n
+			<pattern>%date %level [%thread] %logger{64} [%file:%line] %msg%n
 			</pattern>
 		</encoder>
 	</appender>
 
-	<logger name="com.smeup.provider.log.LoggedInterceptor" level="INFO" />
+	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>%d ${contextPath} %date %level [%thread] %logger{64}
+				[%file:%line] %msg%n</pattern>
+		</encoder>
+	</appender>
 
-	<!-- turn OFF all logging (children can override) -->
-	<root level="OFF">
+	<logger name="com.smeup.provider.log.LoggedInterceptor" level="DEBUG" />
+
+	<root level="INFO">
+		<appender-ref ref="FILE" />
 		<appender-ref ref="STDOUT" />
 	</root>
-
 </configuration>
