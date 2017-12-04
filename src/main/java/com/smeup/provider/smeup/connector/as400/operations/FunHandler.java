@@ -23,11 +23,8 @@ public class FunHandler {
 
     public void executeFun(final String fun, final Writer writer) {
 
-        //Very naive implementation
-        synchronized (getSmeupSession().getSessionId().intern()) {
-            getDataQueueWriter().writeToQueue(fun);
-            getDataQueueReader().readFromQueue(writer);
-        }
+        getDataQueueWriter().writeToQueue(fun);
+        getDataQueueReader().readFromQueue(writer);
     }
 
     public DataQueueWriter getDataQueueWriter() {
