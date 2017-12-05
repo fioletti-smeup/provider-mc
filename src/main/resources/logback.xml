@@ -2,12 +2,12 @@
 
 	<appender name="FILE"
 		class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<file>${userHome}/var/log/provider-fun/${HOSTNAME}-${CONTEXT_NAME}.log
+		<file>${user.home}/var/log/provider-fun/${HOSTNAME}-${CONTEXT_NAME}.log
 		</file>
 
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
 			<!-- daily rollover -->
-			<fileNamePattern>../logs/${HOSTNAME}-${CONTEXT_NAME}.%d{yyyy-MM-dd}.log
+			<fileNamePattern>${user.home}/var/log/provider-fun/${HOSTNAME}-${CONTEXT_NAME}.%d{yyyy-MM-dd}.log
 			</fileNamePattern>
 			<!-- keep 30 days' worth of history capped at 1GB total size -->
 			<maxHistory>30</maxHistory>

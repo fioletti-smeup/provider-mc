@@ -24,7 +24,7 @@ public class LogbackInit implements ServletContextListener {
         final String contextPath = sce.getServletContext().getContextPath();
         context.setName(contextPath.isEmpty() ? "default" : contextPath.substring(1));
 
-        context.putProperty("userHome", System.getProperty("user.home"));
+        //        context.putProperty("userHome", System.getProperty("user.home"));
         try {
             jc.doConfigure(
                     getClass().getClassLoader().getResource("/logback.xml"));
@@ -36,5 +36,6 @@ public class LogbackInit implements ServletContextListener {
     @Override
     public void contextDestroyed(final ServletContextEvent sce) {
 
+        //TODO Have I to close the logger context?
     }
 }
