@@ -1,29 +1,26 @@
 <configuration scan="true" scanPeriod="60 seconds">
 
-	<contextName>${contextPath}</contextName>
-	
 	<appender name="FILE"
 		class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<file>../logs/${HOSTNAME}-${contextPath}.log</file>
+		<file>${userHome}/var/log/provider-fun/${HOSTNAME}-${CONTEXT_NAME}.log
+		</file>
 
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
 			<!-- daily rollover -->
-			<fileNamePattern>../logs/${HOSTNAME}-${contextPath}.%d{yyyy-MM-dd}.log
+			<fileNamePattern>../logs/${HOSTNAME}-${CONTEXT_NAME}.%d{yyyy-MM-dd}.log
 			</fileNamePattern>
 			<!-- keep 30 days' worth of history capped at 1GB total size -->
 			<maxHistory>30</maxHistory>
 			<totalSizeCap>1GB</totalSizeCap>
 		</rollingPolicy>
 		<encoder>
-			<pattern>%date %level [%thread] %logger{64} [%file:%line] %msg%n
-			</pattern>
+			<pattern>%date %level [%thread] [%logger{64}:%line]: %msg%n</pattern>
 		</encoder>
 	</appender>
 
 	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
 		<encoder>
-			<pattern>%d ${contextPath} %date %level [%thread] %logger{64}
-				[%file:%line] %msg%n</pattern>
+			<pattern>${CONTEXT_NAME}: %level [%thread] [%logger{64}:%line]: %msg%n</pattern>
 		</encoder>
 	</appender>
 

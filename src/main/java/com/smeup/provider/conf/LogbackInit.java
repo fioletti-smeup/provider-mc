@@ -20,12 +20,11 @@ public class LogbackInit implements ServletContextListener {
                 .getILoggerFactory();
         final JoranConfigurator jc = new JoranConfigurator();
         jc.setContext(context);
-        context.reset(); // override default configuration
-        // inject the name of the current contextPath as "contextPath"
-        // property of the LoggerContext
+        context.reset();
         final String contextPath = sce.getServletContext().getContextPath();
-        context.putProperty("contextPath",
-                contextPath.isEmpty() ? "" : contextPath.substring(1));
+        context.setName(contextPath.isEmpty() ? "default" : contextPath.substring(1));
+
+        context.putProperty("userHome", System.getProperty("user.home"));
         try {
             jc.doConfigure(
                     getClass().getClassLoader().getResource("/logback.xml"));
