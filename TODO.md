@@ -1,5 +1,3 @@
-Vedere se si possono creare meno oggetti CDI
-
 Scrivere di completare le specifiche
 
 Restiture bad request se il token non è formalmente corretto
