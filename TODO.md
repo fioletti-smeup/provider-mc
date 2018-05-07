@@ -1,5 +1,3 @@
-Scrivere di completare le specifiche
-
 Restiture bad request se il token non è formalmente corretto
 
 Aggiungere test di unità e di integrazione
